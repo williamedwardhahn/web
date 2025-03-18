@@ -12,14 +12,18 @@
             align-items: center;
             height: 100vh;
             background: #f4f4f4;
+            overflow: hidden;
         }
         .kanban {
             display: flex;
-            gap: 20px;
+            gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .column {
-            width: 200px;
+            width: 90%;
+            max-width: 300px;
             background: white;
             padding: 10px;
             border-radius: 5px;
@@ -38,6 +42,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            touch-action: none;
         }
         .dropzone {
             min-height: 100px;
@@ -55,6 +60,17 @@
         }
         .task-input-container {
             margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 300px;
+        }
+        input, button {
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -109,6 +125,16 @@
                 if (draggingTask) {
                     zone.appendChild(draggingTask);
                 }
+            });
+        });
+
+        document.querySelectorAll('.task').forEach(task => {
+            task.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                task.classList.add('dragging');
+            });
+            task.addEventListener('touchend', () => {
+                task.classList.remove('dragging');
             });
         });
     </script>
