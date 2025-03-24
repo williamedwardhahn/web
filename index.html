@@ -1,45 +1,40 @@
 <html>
 <head>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        .header {
-            text-align: center;
-            padding: 20px;
-            background-color: #f8f8f8;
-        }
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .column {
-            flex: 50%;
-            padding: 10px;
-        }
-        @media screen and (max-width: 600px) {
-            .column {
-                flex: 100%;
-            }
-        }
-    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+}
+.navbar a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+.navbar a:hover {
+  background: #ddd;
+  color: black;
+}
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>My Responsive Website</h1>
-    </div>
 
-    <div class="row">
-        <div class="column">
-            <h2>Column 1</h2>
-            <p>Some text..</p>
-        </div>
+<div class="navbar">
+  <a href="#home">Home</a>
+  <a href="#about">About Cats</a>
+  <a href="#breeds">Cat Breeds</a>
+  <a href="#contact">Contact Us</a>
+</div>
 
-        <div class="column">
-            <h2>Column 2</h2>
-            <p>Some text..</p>
-        </div>
-    </div>
+<div style="padding:20px;margin-top:30px;background-color:#1abc9c;height:1500px;">
+<h1>Welcome to Cat Lovers</h1>
+<p>At Cat Lovers, we bring you everything you need to know about your favourite feline friends. Learn about different breeds, cat care and much more!</p>
+</div>
+
 </body>
 </html>
