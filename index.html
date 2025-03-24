@@ -1,40 +1,48 @@
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {font-family: Arial, Helvetica, sans-serif;}
-.navbar {
-  overflow: hidden;
-  background-color: #333;
-}
-.navbar a {
-  float: left;
-  display: block;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-}
-.navbar a:hover {
-  background: #ddd;
-  color: black;
-}
-</style>
+    <title>Dogs</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            width: 100%;
+            height: 100px;
+            background-color: #f8f9fa;
+            text-align: center;
+            line-height: 100px;
+        }
+        .container {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+        }
+        .content {
+            width: 100%;
+        }
+        @media screen and (max-width: 600px) {
+            .content {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<div class="navbar">
-  <a href="#home">Home</a>
-  <a href="#about">About Cats</a>
-  <a href="#breeds">Cat Breeds</a>
-  <a href="#contact">Contact Us</a>
-</div>
-
-<div style="padding:20px;margin-top:30px;background-color:#1abc9c;height:1500px;">
-<h1>Welcome to Cat Lovers</h1>
-<p>At Cat Lovers, we bring you everything you need to know about your favourite feline friends. Learn about different breeds, cat care and much more!</p>
-</div>
-
+    <div class="header">
+        <h1>All About Dogs</h1>
+    </div>
+    <div class="container">
+        <div class="content">
+            <h2>Dog Breeds</h2>
+            <p>There are a wide variety of dog breeds, each with its own unique characteristics and traits.</p>
+            <h2>Dog Care</h2>
+            <p>Caring for a dog requires understanding its needs and providing for them, which includes food, grooming, and healthcare.</p>
+            <h2>Dog Training</h2>
+            <p>Training a dog can be a fun and rewarding experience for both the handler and the animal.</p>
+        </div>
+    </div>
 </body>
 </html>
