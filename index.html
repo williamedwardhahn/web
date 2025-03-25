@@ -14,16 +14,38 @@
             text-align: center;
             line-height: 100px;
         }
+        .nav {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+        .nav li {
+            float: left;
+        }
+        .nav li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav li a:hover {
+            background-color: #111;
+        }
         .container {
             max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: auto;
             padding: 20px;
         }
         .content {
             width: 100%;
         }
         @media screen and (max-width: 600px) {
+            .nav li {
+                float: none;
+            }
             .content {
                 width: 100%;
             }
@@ -31,16 +53,21 @@
     </style>
 </head>
 <body>
+    <ul class="nav">
+        <li><a href="#Breeds">Dog Breeds</a></li>
+        <li><a href="#Care">Dog Care</a></li>
+        <li><a href="#Training">Dog Training</a></li>
+    </ul>
     <div class="header">
         <h1>All About Dogs</h1>
     </div>
     <div class="container">
         <div class="content">
-            <h2>Dog Breeds</h2>
+            <h2 id="Breeds">Dog Breeds</h2>
             <p>There are a wide variety of dog breeds, each with its own unique characteristics and traits.</p>
-            <h2>Dog Care</h2>
+            <h2 id="Care">Dog Care</h2>
             <p>Caring for a dog requires understanding its needs and providing for them, which includes food, grooming, and healthcare.</p>
-            <h2>Dog Training</h2>
+            <h2 id="Training">Dog Training</h2>
             <p>Training a dog can be a fun and rewarding experience for both the handler and the animal.</p>
         </div>
     </div>
