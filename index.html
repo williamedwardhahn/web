@@ -4,64 +4,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Information</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
         body {
             font-family: Arial, sans-serif;
         }
-        .header {
+        .container {
+            max-width: 960px;
+            margin: auto;
+            padding: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .header, .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
             text-align: center;
-            padding: 15px;
-            background-color: #f0f0f0;
-            animation: fadeIn 2s ease-in;
         }
-        .row::after {
-            content: "";
-            clear: both;
-            display: table;
-        }
-        .col-50 {
-            width: 100%;
-            padding: 15px;
-            animation: slideIn 2s;
-        }
-        @media screen and (min-width: 600px) {
-            .col-50 {
-                width: 50%;
-            }
-        }
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-        @keyframes slideIn {
-            0% {
-                transform: translateX(-100%);
-            }
-            100% {
-                transform: translateX(0);
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Dog Information</h1>
+    <header class="header">
+        <h1>Dogs: Man's Best Friend</h1>
+    </header>
+    
+    <div class="container">
+        <img src="dog_image.jpg" alt="Dog Image">
+        <h2>All About Dogs</h2>
+        <p>Dogs (Canis lupus familiaris) are domesticated mammals, not natural wild animals. They were originally bred from wolves. They have been bred by humans for a long time, and were the first animals ever to be domesticated.</p>
     </div>
-    <div class="row">
-        <div class="col-50">
-            <h2>About Dogs</h2>
-            <p>Dogs are known for their loyalty and companionship, making them an ideal family pet.</p>
-        </div>
-        <div class="col-50">
-            <h2>Types of Dogs</h2>
-            <p>There are numerous dog breeds around the world, each with their unique features and qualities.</p>
-        </div>
-    </div>
+    
+    <footer class="footer">
+        <p>&copy; 2022 - All About Dogs</p>
+    </footer>
 </body>
 </html>
