@@ -15,11 +15,20 @@
         img {
             max-width: 100%;
             height: auto;
+            animation: rotate 5s linear infinite;
         }
         .header, .footer {
             background-color: #f8f9fa;
             padding: 20px;
             text-align: center;
+        }
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
         @media (max-width: 600px) {
             .container {
