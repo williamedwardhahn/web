@@ -1,80 +1,48 @@
-<html>
+<html lang="en">
 <head>
-    <title>Dogs</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Information</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            margin: 0;
-            padding: 0;
             font-family: Arial, sans-serif;
         }
         .header {
-            width: 100%;
-            height: 100px;
-            background-color: #f8f9fa;
             text-align: center;
-            line-height: 100px;
-            background-image: url('header-image.jpg');
-            background-repeat: no-repeat;
-            background-position: center;
+            padding: 15px;
+            background-color: #f0f0f0;
         }
-        .nav {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #333;
+        .row::after {
+            content: "";
+            clear: both;
+            display: table;
         }
-        .nav li {
-            float: left;
-        }
-        .nav li a {
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-        }
-        .nav li a:hover {
-            background-color: #111;
-        }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-        }
-        .content {
+        .col-50 {
             width: 100%;
+            padding: 15px;
         }
-        @media screen and (max-width: 600px) {
-            .nav li {
-                float: none;
-            }
-            .content {
-                width: 100%;
+        @media screen and (min-width: 600px) {
+            .col-50 {
+                width: 50%;
             }
         }
     </style>
 </head>
 <body>
-    <ul class="nav">
-        <li><a href="#Breeds"><img src="breeds-icon.png" alt="Dog Breeds Icon"></a></li>
-        <li><a href="#Care"><img src="care-icon.png" alt="Dog Care Icon"></a></li>
-        <li><a href="#Training"><img src="training-icon.png" alt="Dog Training Icon"></a></li>
-    </ul>
     <div class="header">
-        <h1>All About Dogs</h1>
+        <h1>Dog Information</h1>
     </div>
-    <div class="container">
-        <div class="content">
-            <h2 id="Breeds">Dog Breeds</h2>
-            <img src="dogs-breeds.jpg" alt="Different breeds of dogs">
-            <p>There are a wide variety of dog breeds, each with its own unique characteristics and traits.</p>
-            <h2 id="Care">Dog Care</h2>
-            <img src="dogs-care.jpg" alt="A well-cared for dog">
-            <p>Caring for a dog requires understanding its needs and providing for them, which includes food, grooming, and healthcare.</p>
-            <h2 id="Training">Dog Training</h2>
-            <img src="dogs-training.jpg" alt="A dog being trained">
-            <p>Training a dog can be a fun and rewarding experience for both the handler and the animal.</p>
+    <div class="row">
+        <div class="col-50">
+            <h2>About Dogs</h2>
+            <p>Dogs are known for their loyalty and companionship, making them an ideal family pet.</p>
+        </div>
+        <div class="col-50">
+            <h2>Types of Dogs</h2>
+            <p>There are numerous dog breeds around the world, each with their unique features and qualities.</p>
         </div>
     </div>
 </body>
