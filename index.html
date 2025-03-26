@@ -14,6 +14,7 @@
             text-align: center;
             padding: 15px;
             background-color: #f0f0f0;
+            animation: fadeIn 2s ease-in;
         }
         .row::after {
             content: "";
@@ -23,10 +24,27 @@
         .col-50 {
             width: 100%;
             padding: 15px;
+            animation: slideIn 2s;
         }
         @media screen and (min-width: 600px) {
             .col-50 {
                 width: 50%;
+            }
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        @keyframes slideIn {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(0);
             }
         }
     </style>
