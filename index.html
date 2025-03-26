@@ -12,28 +12,19 @@
             margin: auto;
             padding: 20px;
         }
-        .container svg {
-            max-width: 100%;
-            height: auto;
-            animation: rotate 5s linear infinite;
+        .emoji {
+            font-size: 5em;
+            margin-bottom: 20px;
         }
         .header, .footer {
             background-color: #f8f9fa;
             padding: 20px;
             text-align: center;
         }
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
         @media (max-width: 600px) {
             .container {
                 padding: 10px;
-            }
+           }
         }
     </style>
 </head>
@@ -43,25 +34,19 @@
     </header>
     
     <div class="container">
-        <svg role="img" aria-label="Dog Icon">
-            <!-- Insert your Dog icon SVG Path here -->
-        </svg>
+        <div class="emoji" role="img" aria-label="Dog">&#x1F415;</div>
         <h2>All About Dogs</h2>
         <p>Dogs (Canis lupus familiaris) are domesticated mammals, not natural wild animals. They were originally bred from wolves. They have been bred by humans for a long time, and were the first animals ever to be domesticated.</p>
     </div>
     
     <div class="container">
-        <svg role="img" aria-label="Cat Icon">
-            <!-- Insert your Cat icon SVG Path here -->
-        </svg>
+        <div class="emoji" role="img" aria-label="Cat">&#x1F431;</div>
         <h2>All About Cats</h2>
         <p>Cats (Felis catus) are small, carnivorous mammals that are often kept as pets. They are one of humanity's oldest and most beloved pets.</p>
     </div>
     
-     <div class="container">
-        <svg role="img" aria-label="Fish Icon">
-            <!-- Insert your Fish icon SVG Path here -->
-        </svg>
+    <div class="container">
+        <div class="emoji" role="img" aria-label="Fish">&#x1F41F;</div>
         <h2>All About Fish</h2>
         <p>Fish are ecologically diverse and important for both recreational and commercial activities. Many people enjoy keeping fish as pets in aquariums for their beauty and intriguing behavior.</p>
     </div>
