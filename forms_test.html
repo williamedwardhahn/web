@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Test Form</title>
+</head>
+<body>
+  <!-- A hidden iframe prevents the page from navigating away after submission -->
+  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+  
+  <form 
+    action="https://docs.google.com/forms/d/e/1FAIpQLSdobje9EsvfllB_3R-hF1DUt3dGWNq_YdUMPzwKDNRShFu1BA/formResponse" 
+    method="post" 
+    target="hidden_iframe">
+    
+    <!-- Question 1: Yes or No (Radio Buttons) -->
+    <div>
+      <p>Yes or No *</p>
+      <label>
+        <input type="radio" name="entry.1063413385" value="Option 1" required>
+        Option 1
+      </label>
+      <label>
+        <input type="radio" name="entry.1063413385" value="Option 2" required>
+        Option 2
+      </label>
+    </div>
+
+    <!-- Question 2: Number One Questions (Text Field) -->
+    <div>
+      <p>Number One Questions *</p>
+      <input type="text" name="entry.1108816072" required>
+    </div>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <!-- Optional: Display a message upon submission -->
+  <script>
+    document.querySelector('form').addEventListener('submit', function() {
+      alert("Form submitted successfully!");
+    });
+  </script>
+</body>
+</html>
+
