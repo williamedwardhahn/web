@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emoji Image Voting</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .emoji-container {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      max-width: 400px;
+      gap: 1rem;
+    }
+    .emoji {
+      font-size: 4rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .emoji:hover {
+      transform: scale(1.1);
+    }
+    .winner {
+      margin-top: 2rem;
+      font-size: 2rem;
+    }
+    @media (max-width: 600px) {
+      .emoji {
+        font-size: 3rem;
+        padding: 0.5rem;
+      }
+    }
+    form {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pick Your Favorite!</h1>
+  <div class="emoji-container" id="emojiContainer"></div>
+  <div class="winner" id="winnerText"></div>
+
+  <!-- Hidden Google Form Submission -->
+  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+  <form 
+    id="googleForm"
+    action="https://docs.google.com/forms/d/e/1FAIpQLSdobje9EsvfllB_3R-hF1DUt3dGWNq_YdUMPzwKDNRShFu1BA/formResponse" 
+    method="post" 
+    target="hidden_iframe">
+    
+    <!-- Hidden fields -->
+    <input type="hidden" name="entry.1063413385" value="Option 1">
+    <input type="hidden" id="winnerInput" name="entry.1108816072" />
+  </form>
+
+  <script>
+    const images = ['\u{1F98A}', '\u{1F981}', '\u{1F436}', '\u{1F431}', '\u{1F42E}', '\u{1F428}', '\u{1F43C}', '\u{1F42F}'];
+    let currentIndex = 2;
+    let currentWinner = null;
+
+    const container = document.getElementById('emojiContainer');
+    const winnerText = document.getElementById('winnerText');
+    const winnerInput = document.getElementById('winnerInput');
+    const form = document.getElementById('googleForm');
+
+    function renderChoices(left, right) {
+      container.innerHTML = '';
+
+      const leftDiv = document.createElement('div');
+      leftDiv.className = 'emoji';
+      leftDiv.textContent = left;
+      leftDiv.onclick = () => handleVote(left);
+
+      const rightDiv = document.createElement('div');
+      rightDiv.className = 'emoji';
+      rightDiv.textContent = right;
+      rightDiv.onclick = () => handleVote(right);
+
+      container.appendChild(leftDiv);
+      container.appendChild(rightDiv);
+    }
+
+    function handleVote(selected) {
+      currentWinner = selected;
+      if (currentIndex < images.length) {
+        const nextChallenger = images[currentIndex++];
+        renderChoices(currentWinner, nextChallenger);
+      } else {
+        container.innerHTML = '';
+        winnerText.textContent = `\u{1F3C6} Winner: ${currentWinner}`;
+
+        // Fill and submit form
+        winnerInput.value = currentWinner;
+        form.submit();
+      }
+    }
+
+    // Initial render
+    renderChoices(images[0], images[1]);
+  </script>
+</body>
+</html>
+
