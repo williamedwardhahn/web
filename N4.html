@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buenos Aires Image Tournament</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .image-container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 500px;
+      gap: 1rem;
+    }
+
+    .image-card {
+      flex: 1 1 45%;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s;
+      padding: 0.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .image-card:hover {
+      transform: scale(1.05);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+    }
+
+    .winner {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .image-card {
+        flex-basis: 100%;
+      }
+    }
+
+    form {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pick Your Favorite View of Buenos Aires!</h1>
+  <div class="image-container" id="imageContainer"></div>
+  <div class="winner" id="winnerText"></div>
+
+  <!-- Hidden Google Form -->
+  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+  <form 
+    id="googleForm"
+    action="https://docs.google.com/forms/d/e/1FAIpQLSdobje9EsvfllB_3R-hF1DUt3dGWNq_YdUMPzwKDNRShFu1BA/formResponse" 
+    method="post" 
+    target="hidden_iframe">
+    
+    <input type="hidden" name="entry.1063413385" value="Option 1">
+    <input type="hidden" id="winnerInput" name="entry.1108816072" />
+  </form>
+
+  <script>
+    const images = [
+      "1.png",
+      "2.png",
+      "3.png",
+      "4.png",
+      "5.png",
+      "6.png",
+      "7.png",
+      "8.png",
+      "9.png",
+      "10.png",
+    ];
+
+    let currentIndex = 2;
+    let currentWinnerIndex = 0;
+
+    const container = document.getElementById('imageContainer');
+    const winnerText = document.getElementById('winnerText');
+    const winnerInput = document.getElementById('winnerInput');
+    const form = document.getElementById('googleForm');
+
+    function renderChoices(index1, index2) {
+      container.innerHTML = '';
+
+      [index1, index2].forEach(index => {
+        const div = document.createElement('div');
+        div.className = 'image-card';
+
+        const img = document.createElement('img');
+        img.src = images[index];
+        img.alt = `Image ${index + 1}`;
+
+        div.onclick = () => handleVote(index);
+        div.appendChild(img);
+        container.appendChild(div);
+      });
+    }
+
+    function handleVote(selectedIndex) {
+      currentWinnerIndex = selectedIndex;
+      if (currentIndex < images.length) {
+        const nextIndex = currentIndex++;
+        renderChoices(currentWinnerIndex, nextIndex);
+      } else {
+        container.innerHTML = '';
+        winnerText.textContent = `🏆 You chose Image #${currentWinnerIndex + 1}!`;
+
+        winnerInput.value = currentWinnerIndex + 1;
+        form.submit();
+      }
+    }
+
+    // Start Tournament
+    renderChoices(0, 1);
+  </script>
+</body>
+</html>
