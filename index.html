@@ -1,1 +1,49 @@
+<html>
+  <head>
+    <title>Pendulum Simulator</title>
+    <style>
+      .pendulum {
+        position: relative;
+        width: 300px;
+        height: 300px;
+      }
+      .pendulum-marker {
+        width: 10px;
+        height: 10px;
+        background: green;
+        position: absolute;
+        bottom: 50%;
+        left: 50%;
+        transform: translate(-50%, 50%); 
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="pendulum">
+        <div class="pendulum-marker"></div>
+      </div>
+    </div>
+    
+    <script>
+    
+      document.addEventListener('DOMContentLoaded', (event) => {
+    
+        const pendulum = document.querySelector('.pendulum-marker');
+        
+        let angle = 0;
+        
+        function swingPendulum() {
+          pendulum.style.transform = `rotate(${angle}deg)`;
+          angle = (angle + 1) % 360;
+            
+          requestAnimationFrame(swingPendulum);
+        }
+        
+        swingPendulum();
+      });
+    
+    </script>
 
+  </body>
+</html>
