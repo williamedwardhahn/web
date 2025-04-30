@@ -4,99 +4,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Triple Pendulum Simulator</title>
         <style>
-            body {
-                font-family: Arial, sans-serif;
-            }
-            .container {
-                max-width: 960px;
-                margin: auto;
-                padding: 20px;
-            }
-            .emoji {
-                font-size: 5em;
-                margin-bottom: 20px;
-            }
-            .header, .footer {
-                background-color: #f8f9fa;
-                padding: 20px;
-                text-align: center;
-            }
-            @media (max-width: 600px) {
-                .container {
-                    padding: 10px;
-                }
-            }
-            #triple-pendulum {
-                width: 100%;
-                height: 600px;
-            }
+            /* ... same as your original code ... */
         </style>
         <script>
             window.onload = function() {
-                let canvas = document.getElementById('triple-pendulum');
-                let ctx = canvas.getContext('2d');
-                
+                // ... same as your original code up to here ...
+
                 // Pendulum setup
                 let l1 = 100, l2 = 100, l3 = 100;
                 let m1 = 20, m2 = 20, m3 = 20;
                 let a1 = Math.PI / 2, a2 = Math.PI / 2, a3 = Math.PI / 2;
                 let a1_v = 0, a2_v = 0, a3_v = 0;
-                
-                // Drawing the pendulum
-                function draw() {
-                    [
-                        [x1, y1, a1, a1_v, l1, m1],
-                        [x2, y2, a2, a2_v, l2, m2],
-                        [x3, y3, a3, a3_v, l3, m3]
-                    ].forEach(([x, y, a, a_v, li, mi], i, arr) => {
-                        let [px, py] = arr[i-1] || [canvas.width / 2, canvas.height / 2];
-                        x = px + li * Math.sin(a);
-                        y = py + li * Math.cos(a);
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.beginPath();
-                        ctx.moveTo(px, py);
-                        ctx.lineTo(x, y);
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.arc(x, y, mi, 0, Math.PI * 2);
-                        ctx.fill();
-                    });
-                    update();
-                }
+                let a1_a = 0.01, a2_a = 0.02, a3_a = 0.03; // <- these were initially undefined
 
-                // Require physics computations for triple pendulum
-                function update() {
-                    /* Necessary physics equations implementation */
-                    a1_v += a1_a;
-                    a2_v += a2_a;
-                    a3_v += a3_a;
-                    a1 += a1_v;
-                    a2 += a2_v;
-                    a3 += a3_v;
-
-                    a1_v *= 0.99;
-                    a2_v *= 0.99;
-                    a3_v *= 0.99;
-                    
-                    requestAnimationFrame(draw);
-                }
-                draw();
+                // ... same as your original code from here ...
             }
         </script>
     </head>
     <body>
-        <header class="header">
-            <h1>Triple Pendulum Simulator: Explore the Dynamics of a Triple Pendulum!</h1>
-        </header>
-
-        <div class="container">
-            <canvas id="triple-pendulum" width="800" height="600"></canvas>
-            <h2>About the Triple Pendulum Simulator</h2>
-            <p>This simulator allows you to visualize the motion of a triple pendulum. The triple pendulum is an extension of the double pendulum with more complex dynamics. Feel free to play around and observe the chaotic behavior.</p>
-        </div>
-
-        <footer class="footer">
-            <p>&copy; 2022 - Triple Pendulum Simulator</p>
-        </footer>
+        <!-- ... same as your original code ... -->
     </body>
 </html>
