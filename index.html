@@ -1,27 +1,51 @@
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Triple Pendulum Simulator</title>
-        <style>
-            /* ... same as your original code ... */
-        </style>
-        <script>
-            window.onload = function() {
-                // ... same as your original code up to here ...
 
-                // Pendulum setup
-                let l1 = 100, l2 = 100, l3 = 100;
-                let m1 = 20, m2 = 20, m3 = 20;
-                let a1 = Math.PI / 2, a2 = Math.PI / 2, a3 = Math.PI / 2;
-                let a1_v = 0, a2_v = 0, a3_v = 0;
-                let a1_a = 0.01, a2_a = 0.02, a3_a = 0.03; // <- these were initially undefined
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triple Pendulum Simulator</title>
+    <style>
+        /* ... Style code here ... */
+    </style>
+    <script>
+        window.onload = function () {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            document.body.appendChild(canvas);
+            let width = canvas.width = window.innerWidth,
+                height = canvas.height = window.innerHeight;
 
-                // ... same as your original code from here ...
+            const pendulum = {
+                l1: 100, l2: 100, l3: 100,
+                m1: 20, m2: 20, m3: 20,
+                a1: Math.PI / 2, a2: Math.PI / 2, a3: Math.PI / 2,
+                a1_v: 0, a2_v: 0, a3_v: 0,
+                a1_a: 0.01, a2_a: 0.02, a3_a: 0.03,
+            };
+
+            function draw() {
+                context.clearRect(0, 0, width, height);
+                // ... Drawing the pendulum logic ...
             }
-        </script>
-    </head>
-    <body>
-        <!-- ... same as your original code ... -->
-    </body>
+
+            function simulate() {
+                // ... Simulating pendulum logic ...
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                draw();
+                simulate();
+            }
+
+            animate();
+        }
+    </script>
+
+</head>
+
+<body>
+    <!-- Your body elements here -->
+</body>
+
 </html>
