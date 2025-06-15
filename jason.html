@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delray Beach Airbnb Guest Check-In</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #fffbeb, #bae6fd);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 600px;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #2563eb;
+      font-size: 18px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 2px solid #60a5fa;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      background-color: #2563eb;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #e0f2fe;
+      margin-bottom: 12px;
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .checked-in {
+      background-color: #d1fae5 !important;
+    }
+
+    .guest-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .guest-meta {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .check-btn {
+      background-color: #10b981;
+    }
+
+    .checkout-btn {
+      background-color: #ef4444;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌴 Delray Beach Airbnb 🐚</h1>
+    <h2>Guest Check-In / Check-Out List</h2>
+    <input type="text" id="guestName" placeholder="Guest name..." />
+    <select id="guestRoom">
+      <option value="">Select room...</option>
+      <option value="Ocean View 🌊">Ocean View 🌊</option>
+      <option value="Palm Suite 🌴">Palm Suite 🌴</option>
+      <option value="Sunset Loft 🌅">Sunset Loft 🌅</option>
+    </select>
+    <button class="btn" onclick="addGuest()">➕ Add Guest</button>
+    <ul id="guestList"></ul>
+  </div>
+
+  <script>
+    const guestList = document.getElementById('guestList');
+
+    function addGuest() {
+      const nameInput = document.getElementById('guestName');
+      const roomInput = document.getElementById('guestRoom');
+      const name = nameInput.value.trim();
+      const room = roomInput.value;
+      if (!name || !room) return;
+      nameInput.value = '';
+      roomInput.value = '';
+
+      const now = new Date();
+      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const li = document.createElement('li');
+      const info = document.createElement('div');
+      const meta = document.createElement('div');
+      const button = document.createElement('button');
+
+      info.className = 'guest-info';
+      info.innerHTML = `<span>🕒 ${name}</span> <span class="guest-meta">Room: ${room}</span>`;
+      meta.textContent = `Added at ${timeString}`;
+      meta.className = 'guest-meta';
+
+      button.textContent = 'Check In';
+      button.className = 'btn check-btn';
+      button.onclick = () => {
+        const checkedIn = li.classList.toggle('checked-in');
+        info.children[0].textContent = `${checkedIn ? '✅' : '🕒'} ${name}`;
+        button.textContent = checkedIn ? 'Check Out' : 'Check In';
+        button.className = checkedIn ? 'btn checkout-btn' : 'btn check-btn';
+      };
+
+      li.appendChild(info);
+      li.appendChild(meta);
+      li.appendChild(button);
+      guestList.appendChild(li);
+    }
+  </script>
+</body>
+</html>
+
