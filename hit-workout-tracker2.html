@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIT Workout Tracker - Arthur Jones Style</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .neon-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff;
+            animation: pulse 2s infinite;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .neon-title {
+                font-size: 1.8rem;
+                text-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, 0 0 25px #00ffff;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .neon-title {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 0.8rem;
+            }
+        }
+        
+        .quote-box {
+            background: rgba(255, 0, 255, 0.1);
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+        }
+        
+        .quote {
+            font-style: italic;
+            font-size: 1rem;
+            color: #ffff00;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .quote-author {
+            color: #ff00ff;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .quote-box {
+                padding: 12px;
+                margin: 10px 0;
+            }
+            
+            .quote {
+                font-size: 0.9rem;
+            }
+            
+            .quote-author {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .quote {
+                font-size: 0.8rem;
+            }
+            
+            .quote-author {
+                font-size: 0.7rem;
+            }
+        }
+        
+        .workout-section {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.2);
+        }
+        
+        .workout-title {
+            font-size: 1.5rem;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+            margin-bottom: 15px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .workout-section {
+                padding: 15px;
+                margin: 10px 0;
+            }
+            
+            .workout-title {
+                font-size: 1.3rem;
+            }
+            
+            .exercise-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .workout-title {
+                font-size: 1.1rem;
+            }
+            
+            .exercise-grid {
+                gap: 10px;
+            }
+        }
+        
+        .exercise-card {
+            background: rgba(255, 255, 0, 0.1);
+            border: 2px solid #ffff00;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .exercise-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 255, 0, 0.3);
+        }
+        
+        .exercise-card.completed {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00ff00;
+        }
+        
+        .exercise-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #00ffff;
+            line-height: 1.3;
+        }
+        
+        .exercise-details {
+            color: #ffffff;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+        }
+        
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .custom-checkbox:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .custom-checkbox input {
+            margin-right: 8px;
+            transform: scale(1.3);
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            margin: 10px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .exercise-card {
+                padding: 12px;
+            }
+            
+            .exercise-name {
+                font-size: 1rem;
+            }
+            
+            .exercise-details {
+                font-size: 0.85rem;
+            }
+            
+            .custom-checkbox {
+                font-size: 0.9rem;
+                padding: 6px;
+            }
+            
+            .custom-checkbox input {
+                transform: scale(1.2);
+            }
+            
+            .video-container {
+                padding-bottom: 60%; /* Slightly taller for mobile */
+                margin: 8px 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .exercise-card {
+                padding: 10px;
+            }
+            
+            .exercise-name {
+                font-size: 0.9rem;
+            }
+            
+            .exercise-details {
+                font-size: 0.8rem;
+            }
+            
+            .custom-checkbox {
+                font-size: 0.8rem;
+            }
+            
+            .video-container {
+                padding-bottom: 65%; /* Even taller for small phones */
+                margin: 6px 0;
+            }
+        }
+        
+        .progress-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            background: #333;
+            height: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 0, 255, 0.1);
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+        }
+        
+        .stat-label {
+            color: #00ffff;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .progress-container {
+                padding: 12px;
+            }
+            
+            .progress-bar {
+                height: 12px;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 10px;
+            }
+            
+            .stat-number {
+                font-size: 1.3rem;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 8px;
+            }
+            
+            .stat-number {
+                font-size: 1.2rem;
+            }
+            
+            .stat-label {
+                font-size: 0.75rem;
+            }
+        }
+        
+        .reset-button {
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-family: 'Orbitron', monospace;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 15px auto;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            min-height: 44px;
+        }
+        
+        .reset-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+        }
+        
+        .emoji {
+            font-size: 1.2rem;
+            margin: 0 3px;
+        }
+        
+        .hit-principles {
+            background: rgba(255, 255, 0, 0.1);
+            border: 2px solid #ffff00;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .principles-title {
+            font-size: 1.3rem;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+            margin-bottom: 12px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .principle-item {
+            color: #ffffff;
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            border-left: 4px solid #00ffff;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .reset-button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .emoji {
+                font-size: 1rem;
+            }
+            
+            .hit-principles {
+                padding: 12px;
+            }
+            
+            .principles-title {
+                font-size: 1.1rem;
+            }
+            
+            .principle-item {
+                font-size: 0.85rem;
+                padding: 6px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .reset-button {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+            
+            .principles-title {
+                font-size: 1rem;
+            }
+            
+            .principle-item {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="neon-title">💪 HIT WORKOUT TRACKER 💪</h1>
+            <p class="subtitle">🔥 Arthur Jones & Mike Mentzer Style 🔥</p>
+        </div>
+        
+        <div class="quote-box">
+            <p class="quote">"Training harder, but training briefer - that's the key to maximum results!"</p>
+            <p class="quote-author">- Arthur Jones</p>
+        </div>
+        
+        <div class="hit-principles">
+            <h3 class="principles-title">🎯 HIT PRINCIPLES 🎯</h3>
+            <div class="principle-item">💥 <strong>Train to Failure:</strong> Each set pushed to absolute muscular failure</div>
+            <div class="principle-item">⚡ <strong>Brief & Intense:</strong> Short, high-intensity workouts</div>
+            <div class="principle-item">🛌 <strong>Recovery:</strong> 4-7 days rest between sessions</div>
+            <div class="principle-item">🎭 <strong>Progressive Overload:</strong> Gradually increase weight or reps</div>
+        </div>
+        
+        <div class="progress-container">
+            <h3>🏆 WORKOUT PROGRESS 🏆</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">0% Complete</p>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="completedCount">0</div>
+                    <div class="stat-label">✅ Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">🎯 Total Exercises</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="workoutTime">0</div>
+                    <div class="stat-label">⏱️ Minutes</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="workout-section">
+            <h2 class="workout-title">🚀 WORKOUT A - CHEST, BACK, LEGS 🚀</h2>
+            <div class="exercise-grid">
+                <div class="exercise-card">
+                    <div class="exercise-name">🏋️ Dumbbell Flyes (Pre-exhaust)</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 8-12<br>
+                        <strong>Rest:</strong> 10 seconds, then immediately to compound movement
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/QENKPHhQVi4" 
+                                title="Dumbbell Flyes Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">💪</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">🔥 Incline Barbell Press</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 6-8<br>
+                        <strong>Technique:</strong> Controlled 4-second negatives
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/IP6J2gSwKhk" 
+                                title="Incline Barbell Press Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">💥</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">🌊 Nautilus Pullovers</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 8-12<br>
+                        <strong>Focus:</strong> Stretch and contract lats fully
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/tM8L_rJdOow" 
+                                title="Nautilus Pullover Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">🎯</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">⚡ Close-Grip Pulldowns</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 6-8<br>
+                        <strong>Technique:</strong> Squeeze shoulder blades together
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/CAwf7n6Luuc" 
+                                title="Close Grip Pulldown Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">🔥</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">🦵 Leg Extensions (Pre-exhaust)</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 12-15<br>
+                        <strong>Rest:</strong> 10 seconds, then to leg press
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/YyvSfVjQeL0" 
+                                title="Leg Extension Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">⚡</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">🏔️ Leg Press</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 8-12<br>
+                        <strong>Range:</strong> 90-degree knee bend, controlled motion
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/IZxyjW7MPJQ" 
+                                title="Leg Press Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">🚀</span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quote-box">
+            <p class="quote">"The key to building muscle is intensity, not volume. One perfect set is worth more than ten mediocre ones!"</p>
+            <p class="quote-author">- Mike Mentzer</p>
+        </div>
+        
+        <div class="workout-section">
+            <h2 class="workout-title">🎯 WORKOUT B - SHOULDERS, ARMS 🎯</h2>
+            <div class="exercise-grid">
+                <div class="exercise-card">
+                    <div class="exercise-name">🌟 Lateral Raises (Pre-exhaust)</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 10-12<br>
+                        <strong>Rest:</strong> 10 seconds, then to shoulder press
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/3VcKaas9EaU" 
+                                title="Lateral Raises Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">💫</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">🏋️ Overhead Press</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 6-8<br>
+                        <strong>Technique:</strong> Strict form, no bouncing
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/2yjwXTZQDDI" 
+                                title="Overhead Press Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">🔥</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">🤷 Shrugs (Pre-exhaust)</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 8-12<br>
+                        <strong>Rest:</strong> 10 seconds, then to upright rows
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/g-yX4RDAIuU" 
+                                title="Shrugs Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">⚡</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">📈 Upright Rows</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 6-8<br>
+                        <strong>Grip:</strong> Shoulder-width, pull to chest level
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/amCU-ziHITM" 
+                                title="Upright Rows Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">🎯</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">💪 Barbell Curls</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 6-8<br>
+                        <strong>Technique:</strong> Slow, controlled movement
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/kwG2ipFRgfo" 
+                                title="Barbell Curls Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">💥</span></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-name">🔧 Close-Grip Bench Press</div>
+                    <div class="exercise-details">
+                        <strong>Sets:</strong> 1 set to failure<br>
+                        <strong>Reps:</strong> 6-8<br>
+                        <strong>Focus:</strong> Tricep isolation, controlled tempo
+                    </div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/nEF0bv2FW94" 
+                                title="Close Grip Bench Press Exercise" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="exercise-checkbox">
+                            <span>Complete <span class="emoji">🚀</span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quote-box">
+            <p class="quote">"Recovery is when you grow. Train hard, rest harder!"</p>
+            <p class="quote-author">- Arthur Jones</p>
+        </div>
+        
+        <button class="reset-button" onclick="resetWorkout()">
+            🔄 RESET WORKOUT 🔄
+        </button>
+    </div>
+    
+    <script>
+        let startTime = Date.now();
+        let timerInterval;
+        
+        function updateStats() {
+            const checkboxes = document.querySelectorAll('.exercise-checkbox');
+            const completedCheckboxes = document.querySelectorAll('.exercise-checkbox:checked');
+            const totalCount = checkboxes.length;
+            const completedCount = completedCheckboxes.length;
+            const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+            
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('completedCount').textContent = completedCount;
+            document.getElementById('progressFill').style.width = progressPercentage + '%';
+            document.getElementById('progressText').textContent = Math.round(progressPercentage) + '% Complete';
+            
+            // Update exercise cards
+            checkboxes.forEach(checkbox => {
+                const card = checkbox.closest('.exercise-card');
+                if (checkbox.checked) {
+                    card.classList.add('completed');
+                } else {
+                    card.classList.remove('completed');
+                }
+            });
+        }
+        
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000 / 60);
+            document.getElementById('workoutTime').textContent = elapsed;
+        }
+        
+        function resetWorkout() {
+            if (confirm('🔄 Are you sure you want to reset your workout progress? 🔄')) {
+                const checkboxes = document.querySelectorAll('.exercise-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                startTime = Date.now();
+                updateStats();
+                updateTimer();
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.exercise-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateStats);
+            });
+            
+            // Start timer
+            timerInterval = setInterval(updateTimer, 60000); // Update every minute
+            
+            // Initial stats update
+            updateStats();
+            updateTimer();
+        });
+        
+        // Add some visual feedback when checking items
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('exercise-checkbox')) {
+                const card = e.target.closest('.exercise-card');
+                if (e.target.checked) {
+                    card.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        card.style.transform = '';
+                    }, 200);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
