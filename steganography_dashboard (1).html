@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PureCipher Steganography Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .file-input {
+            display: block;
+            width: 100%;
+            padding: 40px 20px;
+            border: 3px dashed #3498db;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .file-input:hover {
+            background: #e3f2fd;
+            border-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .file-input input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-content {
+            pointer-events: none;
+        }
+
+        .file-input h3 {
+            color: #3498db;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .file-input p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .file-input small {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .image-preview {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+
+        .image-placeholder {
+            color: #999;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .decoded-section {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .decoded-section.show {
+            display: block;
+            border-color: #27ae60;
+            background: #f0f9f0;
+        }
+
+        .decoded-message {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            min-height: 80px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 15px 0;
+        }
+
+        .encode-section {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .encode-section.show {
+            display: block;
+        }
+
+        .message-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            margin: 15px 0;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .capacity-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .capacity-bar {
+            flex: 1;
+            margin: 0 15px;
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .capacity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #f39c12, #e74c3c);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #229954;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .file-input {
+                padding: 30px 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .capacity-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .capacity-bar {
+                margin: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 PureCipher Steganography Tool</h1>
+            <p>Hide and reveal secret messages in images</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <label for="imageUpload" class="file-input">
+                    <input type="file" id="imageUpload" accept="image/*">
+                    <div class="file-input-content">
+                        <h3>📁 Upload Image</h3>
+                        <p>Click to select or drag & drop an image</p>
+                        <small>Supports PNG, JPG, GIF, WebP (max 10MB)</small>
+                    </div>
+                </label>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div class="image-preview" id="imagePreview">
+                <div class="image-placeholder">
+                    No image uploaded yet
+                </div>
+            </div>
+
+            <div class="stats" id="imageStats" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-value" id="imageWidth">-</div>
+                    <div class="stat-label">Width</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="imageHeight">-</div>
+                    <div class="stat-label">Height</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPixels">-</div>
+                    <div class="stat-label">Capacity (bits)</div>
+                </div>
+            </div>
+
+            <!-- Decoded Message Section -->
+            <div class="decoded-section" id="decodedSection">
+                <h3>🎉 Hidden Message Found!</h3>
+                <div class="decoded-message" id="decodedMessage"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" id="copyBtn">📋 Copy Message</button>
+                    <button class="btn btn-warning" id="overwriteBtn">✏️ Overwrite Message</button>
+                </div>
+            </div>
+
+            <!-- Encode Message Section -->
+            <div class="encode-section" id="encodeSection">
+                <h3>✏️ Write Hidden Message</h3>
+                <textarea 
+                    class="message-input" 
+                    id="messageInput" 
+                    placeholder="Type your secret message here..."
+                    maxlength="50000"
+                ></textarea>
+                
+                <div class="capacity-info">
+                    <span id="charCount">0 chars</span>
+                    <div class="capacity-bar">
+                        <div class="capacity-fill" id="capacityFill"></div>
+                    </div>
+                    <span id="capacityText">0% used</span>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-success" id="encodeBtn" disabled>🔒 Hide Message</button>
+                    <button class="btn btn-primary" id="downloadBtn" disabled>💾 Download Image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class StreamlinedSteganography {
+            constructor() {
+                this.image = null;
+                this.canvas = null;
+                this.ctx = null;
+                this.imageData = null;
+                this.capacity = 0;
+                this.delimiter = '1111111111111110';
+                
+                this.initElements();
+                this.bindEvents();
+            }
+
+            initElements() {
+                this.elements = {
+                    imageUpload: document.getElementById('imageUpload'),
+                    imagePreview: document.getElementById('imagePreview'),
+                    imageStats: document.getElementById('imageStats'),
+                    imageWidth: document.getElementById('imageWidth'),
+                    imageHeight: document.getElementById('imageHeight'),
+                    totalPixels: document.getElementById('totalPixels'),
+                    alertContainer: document.getElementById('alertContainer'),
+                    decodedSection: document.getElementById('decodedSection'),
+                    decodedMessage: document.getElementById('decodedMessage'),
+                    copyBtn: document.getElementById('copyBtn'),
+                    overwriteBtn: document.getElementById('overwriteBtn'),
+                    encodeSection: document.getElementById('encodeSection'),
+                    messageInput: document.getElementById('messageInput'),
+                    charCount: document.getElementById('charCount'),
+                    capacityFill: document.getElementById('capacityFill'),
+                    capacityText: document.getElementById('capacityText'),
+                    encodeBtn: document.getElementById('encodeBtn'),
+                    downloadBtn: document.getElementById('downloadBtn')
+                };
+            }
+
+            bindEvents() {
+                this.elements.imageUpload.addEventListener('change', (e) => this.handleImageUpload(e));
+                this.elements.messageInput.addEventListener('input', () => this.updateCapacity());
+                this.elements.copyBtn.addEventListener('click', () => this.copyMessage());
+                this.elements.overwriteBtn.addEventListener('click', () => this.showEncodeSection());
+                this.elements.encodeBtn.addEventListener('click', () => this.encodeMessage());
+                this.elements.downloadBtn.addEventListener('click', () => this.downloadImage());
+            }
+
+            async handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                this.clearAlerts();
+                this.hideAllSections();
+
+                // Validate file
+                if (!this.validateFile(file)) return;
+
+                try {
+                    const img = await this.loadImage(file);
+                    this.image = img;
+                    this.displayImage(img);
+                    this.updateImageStats(img);
+                    this.setupCanvas(img);
+                    
+                    // Automatically try to decode
+                    await this.tryDecode();
+                    
+                } catch (error) {
+                    this.showAlert('error', 'Failed to load image: ' + error.message);
+                }
+            }
+
+            validateFile(file) {
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    this.showAlert('error', 'Please upload a valid image file (PNG, JPG, GIF, WebP)');
+                    return false;
+                }
+
+                if (file.size > 10 * 1024 * 1024) {
+                    this.showAlert('error', 'File too large. Maximum size is 10MB.');
+                    return false;
+                }
+
+                return true;
+            }
+
+            loadImage(file) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        img.onload = () => resolve(img);
+                        img.onerror = () => reject(new Error('Invalid image file'));
+                        img.src = e.target.result;
+                    };
+                    
+                    reader.onerror = () => reject(new Error('Failed to read file'));
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            displayImage(img) {
+                this.elements.imagePreview.innerHTML = '';
+                const displayImg = document.createElement('img');
+                displayImg.src = img.src;
+                this.elements.imagePreview.appendChild(displayImg);
+            }
+
+            updateImageStats(img) {
+                this.capacity = img.width * img.height * 3; // RGB channels only
+                
+                this.elements.imageWidth.textContent = img.width;
+                this.elements.imageHeight.textContent = img.height;
+                this.elements.totalPixels.textContent = this.capacity.toLocaleString();
+                this.elements.imageStats.style.display = 'grid';
+            }
+
+            setupCanvas(img) {
+                this.canvas = document.createElement('canvas');
+                this.canvas.width = img.width;
+                this.canvas.height = img.height;
+                this.ctx = this.canvas.getContext('2d');
+                this.ctx.drawImage(img, 0, 0);
+                this.imageData = this.ctx.getImageData(0, 0, img.width, img.height);
+            }
+
+            async tryDecode() {
+                try {
+                    const message = this.extractMessage();
+                    if (message) {
+                        this.showDecodedMessage(message);
+                        this.showAlert('success', 'Hidden message found and decoded!');
+                    } else {
+                        this.showEncodeSection();
+                        this.showAlert('info', 'No hidden message found. You can now add one!');
+                    }
+                } catch (error) {
+                    this.showEncodeSection();
+                    this.showAlert('info', 'No hidden message detected. Ready to encode!');
+                }
+            }
+
+            extractMessage() {
+                const data = this.imageData.data;
+                let binaryStr = '';
+                let bitCount = 0;
+
+                // Extract bits from RGB channels
+                for (let i = 0; i < data.length && bitCount < 1000000; i += 4) {
+                    for (let channel = 0; channel < 3; channel++) {
+                        const bit = data[i + channel] % 2;
+                        binaryStr += bit.toString();
+                        bitCount++;
+
+                        // Check for delimiter
+                        if (binaryStr.endsWith(this.delimiter)) {
+                            const messageBinary = binaryStr.slice(0, -this.delimiter.length);
+                            return this.binaryToString(messageBinary);
+                        }
+                    }
+                }
+
+                return null; // No message found
+            }
+
+            binaryToString(binaryStr) {
+                let result = '';
+                for (let i = 0; i < binaryStr.length; i += 8) {
+                    const byte = binaryStr.slice(i, i + 8);
+                    if (byte.length === 8) {
+                        const charCode = parseInt(byte, 2);
+                        if (charCode >= 32 && charCode <= 126 || charCode >= 160 && charCode <= 255) {
+                            result += String.fromCharCode(charCode);
+                        } else if (charCode === 10 || charCode === 13) { // newlines
+                            result += String.fromCharCode(charCode);
+                        } else {
+                            throw new Error('Invalid character detected');
+                        }
+                    }
+                }
+                return result.trim();
+            }
+
+            stringToBinary(text) {
+                return text.split('').map(char => 
+                    char.charCodeAt(0).toString(2).padStart(8, '0')
+                ).join('');
+            }
+
+            showDecodedMessage(message) {
+                this.elements.decodedMessage.textContent = message;
+                this.elements.decodedSection.classList.add('show');
+                this.elements.encodeSection.classList.remove('show');
+            }
+
+            showEncodeSection() {
+                this.elements.encodeSection.classList.add('show');
+                this.elements.decodedSection.classList.remove('show');
+                
+                // Enable download if we have a canvas (image loaded)
+                if (this.canvas) {
+                    this.elements.downloadBtn.disabled = false;
+                }
+                
+                this.updateCapacity();
+            }
+
+            hideAllSections() {
+                this.elements.decodedSection.classList.remove('show');
+                this.elements.encodeSection.classList.remove('show');
+                this.elements.imageStats.style.display = 'none';
+            }
+
+            updateCapacity() {
+                const message = this.elements.messageInput.value;
+                const charCount = message.length;
+                const binaryLength = this.stringToBinary(message).length + this.delimiter.length;
+                
+                this.elements.charCount.textContent = `${charCount} chars`;
+                
+                if (this.capacity > 0) {
+                    const percentage = Math.min((binaryLength / this.capacity) * 100, 100);
+                    this.elements.capacityFill.style.width = percentage + '%';
+                    this.elements.capacityText.textContent = percentage.toFixed(1) + '% used';
+                    
+                    // Update color based on usage
+                    if (percentage > 90) {
+                        this.elements.capacityFill.style.background = '#e74c3c';
+                    } else if (percentage > 70) {
+                        this.elements.capacityFill.style.background = 'linear-gradient(90deg, #f39c12, #e74c3c)';
+                    } else {
+                        this.elements.capacityFill.style.background = 'linear-gradient(90deg, #27ae60, #f39c12)';
+                    }
+
+                    this.elements.encodeBtn.disabled = binaryLength > this.capacity || charCount === 0;
+                }
+            }
+
+            encodeMessage() {
+                const message = this.elements.messageInput.value.trim();
+                if (!message) {
+                    this.showAlert('error', 'Please enter a message to encode');
+                    return;
+                }
+
+                if (!this.imageData) {
+                    this.showAlert('error', 'No image loaded');
+                    return;
+                }
+
+                try {
+                    const binaryStr = this.stringToBinary(message) + this.delimiter;
+                    
+                    // Check if message fits
+                    if (binaryStr.length > this.capacity) {
+                        this.showAlert('error', 'Message too long for this image capacity');
+                        return;
+                    }
+
+                    const data = new Uint8ClampedArray(this.imageData.data);
+
+                    // Encode message
+                    let bitIndex = 0;
+                    for (let i = 0; i < data.length && bitIndex < binaryStr.length; i += 4) {
+                        for (let channel = 0; channel < 3 && bitIndex < binaryStr.length; channel++) {
+                            const bit = parseInt(binaryStr[bitIndex]);
+                            const pixelValue = data[i + channel];
+                            
+                            // Make even for 0, odd for 1
+                            if (bit === 0) {
+                                data[i + channel] = pixelValue % 2 === 0 ? pixelValue : 
+                                    (pixelValue < 255 ? pixelValue + 1 : pixelValue - 1);
+                            } else {
+                                data[i + channel] = pixelValue % 2 === 1 ? pixelValue : 
+                                    (pixelValue < 255 ? pixelValue + 1 : pixelValue - 1);
+                            }
+                            bitIndex++;
+                        }
+                    }
+
+                    // Update canvas with encoded data
+                    const encodedImageData = this.ctx.createImageData(this.imageData.width, this.imageData.height);
+                    encodedImageData.data.set(data);
+                    this.ctx.putImageData(encodedImageData, 0, 0);
+                    
+                    // Store updated imageData for potential re-encoding
+                    this.imageData = encodedImageData;
+
+                    // Update display
+                    const encodedImg = document.createElement('img');
+                    encodedImg.src = this.canvas.toDataURL('image/png');
+                    this.elements.imagePreview.innerHTML = '';
+                    this.elements.imagePreview.appendChild(encodedImg);
+
+                    // Enable download button
+                    this.elements.downloadBtn.disabled = false;
+                    this.showAlert('success', `Message encoded successfully! ${bitIndex} bits used. Ready to download.`);
+
+                } catch (error) {
+                    console.error('Encoding error:', error);
+                    this.showAlert('error', 'Encoding failed: ' + error.message);
+                }
+            }
+
+            downloadImage() {
+                if (!this.canvas) {
+                    this.showAlert('error', 'No image to download');
+                    return;
+                }
+
+                try {
+                    // Convert canvas to blob for better browser compatibility
+                    this.canvas.toBlob((blob) => {
+                        if (!blob) {
+                            this.showAlert('error', 'Failed to create image blob');
+                            return;
+                        }
+
+                        // Create download URL
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = `steganography_${Date.now()}.png`;
+                        link.href = url;
+                        link.style.display = 'none';
+                        
+                        // Add to DOM, click, and cleanup
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        // Clean up the blob URL
+                        setTimeout(() => URL.revokeObjectURL(url), 100);
+                        
+                        this.showAlert('success', 'Image downloaded successfully!');
+                    }, 'image/png', 1.0);
+                } catch (error) {
+                    console.error('Download error:', error);
+                    this.showAlert('error', 'Download failed: ' + error.message);
+                }
+            }
+
+            copyMessage() {
+                const message = this.elements.decodedMessage.textContent;
+                
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(message).then(() => {
+                        this.showAlert('success', 'Message copied to clipboard!');
+                    }).catch(() => {
+                        this.fallbackCopy(message);
+                    });
+                } else {
+                    this.fallbackCopy(message);
+                }
+            }
+
+            fallbackCopy(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    this.showAlert('success', 'Message copied to clipboard!');
+                } catch (err) {
+                    this.showAlert('error', 'Failed to copy message');
+                }
+                
+                document.body.removeChild(textArea);
+            }
+
+            showAlert(type, message) {
+                this.clearAlerts();
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.textContent = message;
+                this.elements.alertContainer.appendChild(alert);
+                
+                setTimeout(() => this.clearAlerts(), 5000);
+            }
+
+            clearAlerts() {
+                this.elements.alertContainer.innerHTML = '';
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new StreamlinedSteganography();
+        });
+    </script>
+</body>
+</html>
