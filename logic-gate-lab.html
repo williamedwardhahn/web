@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💡 Logic Gate Lab - Learn Digital Logic! 🎮</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient-1: #FF6B6B;
+            --bg-gradient-2: #4ECDC4;
+            --bg-gradient-3: #FFE66D;
+            --button-a: #FF6B6B;
+            --button-a-dark: #E85555;
+            --button-b: #4ECDC4;
+            --button-b-dark: #3DB8B0;
+            --led-off: #444;
+            --led-on: #FFE66D;
+            --led-glow: #FFF59D;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Floating decorations */
+        .decorations {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .decoration {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(10deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(20px) rotate(-10deg); }
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: 'Nunito', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            color: white;
+            text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+        }
+
+        /* Book container */
+        .book {
+            background: var(--card-bg);
+            border-radius: 30px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.2),
+                0 0 0 8px rgba(255,255,255,0.3),
+                inset 0 2px 0 rgba(255,255,255,0.5);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+            z-index: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* Page header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .page-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .gate-name {
+            font-family: 'Nunito', sans-serif;
+            font-size: 2.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .gate-emoji {
+            font-size: 2.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .gate-description {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* Circuit display */
+        .circuit-area {
+            background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 3px dashed #dee2e6;
+        }
+
+        .circuit-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 1.8rem;
+            min-height: 80px;
+        }
+
+        .circuit-element {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .circuit-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .circuit-arrow {
+            font-size: 2rem;
+            color: #adb5bd;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* LED Display */
+        .led-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .led {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--led-off);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            transition: all 0.15s ease;
+            box-shadow: 
+                inset 0 -10px 20px rgba(0,0,0,0.3),
+                0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .led.on {
+            background: radial-gradient(circle at 30% 30%, var(--led-glow) 0%, var(--led-on) 50%, #FFB300 100%);
+            box-shadow: 
+                inset 0 -10px 20px rgba(0,0,0,0.1),
+                0 0 40px var(--led-on),
+                0 0 80px rgba(255,230,109,0.5),
+                0 5px 15px rgba(0,0,0,0.2);
+            animation: glow 0.5s ease;
+        }
+
+        @keyframes glow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .led-label {
+            margin-top: 10px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+        }
+
+        /* Buttons area */
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 25px 0;
+        }
+
+        .button-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .arcade-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 2.5rem;
+            position: relative;
+            transition: all 0.1s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .button-a {
+            background: linear-gradient(145deg, #FF8A8A 0%, var(--button-a) 50%, var(--button-a-dark) 100%);
+            box-shadow: 
+                0 8px 0 var(--button-a-dark),
+                0 12px 20px rgba(232,85,85,0.4),
+                inset 0 -5px 10px rgba(0,0,0,0.1),
+                inset 0 5px 10px rgba(255,255,255,0.3);
+        }
+
+        .button-b {
+            background: linear-gradient(145deg, #7EDAD4 0%, var(--button-b) 50%, var(--button-b-dark) 100%);
+            box-shadow: 
+                0 8px 0 var(--button-b-dark),
+                0 12px 20px rgba(61,184,176,0.4),
+                inset 0 -5px 10px rgba(0,0,0,0.1),
+                inset 0 5px 10px rgba(255,255,255,0.3);
+        }
+
+        .arcade-button:active,
+        .arcade-button.pressed {
+            transform: translateY(6px);
+        }
+
+        .button-a:active,
+        .button-a.pressed {
+            box-shadow: 
+                0 2px 0 var(--button-a-dark),
+                0 4px 10px rgba(232,85,85,0.4),
+                inset 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .button-b:active,
+        .button-b.pressed {
+            box-shadow: 
+                0 2px 0 var(--button-b-dark),
+                0 4px 10px rgba(61,184,176,0.4),
+                inset 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .button-label {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--text-dark);
+        }
+
+        .button-state {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 600;
+            min-height: 24px;
+        }
+
+        .button-state.on {
+            color: #27ae60;
+        }
+
+        /* Truth table */
+        .truth-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 350px;
+        }
+
+        .truth-table-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .truth-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .truth-table th,
+        .truth-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .truth-table th {
+            background: #f8f9fa;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .truth-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .truth-table tr.active {
+            background: linear-gradient(90deg, rgba(78,205,196,0.2) 0%, rgba(255,230,109,0.2) 100%);
+        }
+
+        .truth-value {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .truth-value.one {
+            background: #27ae60;
+            color: white;
+        }
+
+        .truth-value.zero {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .page-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .page-dot:hover {
+            background: #bbb;
+        }
+
+        .page-dot.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: scale(1.2);
+        }
+
+        /* Celebration particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .particle {
+            position: absolute;
+            font-size: 2rem;
+            animation: particleFall 2s ease-out forwards;
+        }
+
+        @keyframes particleFall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg) scale(0);
+            }
+        }
+
+        /* Latch special styling */
+        .latch-hint {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #8B4513;
+        }
+
+        .latch-hint strong {
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            z-index: 1;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .book {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .gate-name {
+                font-size: 2rem;
+            }
+
+            .buttons-container {
+                gap: 25px;
+            }
+
+            .arcade-button {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .led {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+
+            .truth-table th,
+            .truth-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating decorations -->
+    <div class="decorations" id="decorations"></div>
+    
+    <!-- Celebration particles container -->
+    <div class="particles" id="particles"></div>
+
+    <header>
+        <h1>💡 Logic Gate Lab 🎮</h1>
+        <p class="subtitle">Learn Digital Logic with Fun! ✨</p>
+    </header>
+
+    <main class="book">
+        <div class="page-header">
+            <div class="page-number">Page <span id="pageNum">1</span> of 6</div>
+            <h2 class="gate-name">
+                <span class="gate-emoji" id="gateEmoji">🔌</span>
+                <span id="gateName">WIRE</span>
+            </h2>
+            <p class="gate-description" id="gateDescription">
+                The simplest connection! Press the button and watch the light!
+            </p>
+        </div>
+
+        <div class="circuit-area">
+            <div class="circuit-diagram" id="circuitDiagram">
+                <!-- Dynamic circuit diagram -->
+            </div>
+        </div>
+
+        <div class="led-container">
+            <div class="led" id="led">💡</div>
+            <div class="led-label">OUTPUT: <span id="outputState">OFF</span></div>
+        </div>
+
+        <div class="buttons-container">
+            <div class="button-wrapper" id="buttonAWrapper">
+                <button class="arcade-button button-a" id="buttonA">🅰️</button>
+                <span class="button-label">Button A</span>
+                <span class="button-state" id="buttonAState">Released</span>
+            </div>
+            <div class="button-wrapper" id="buttonBWrapper">
+                <button class="arcade-button button-b" id="buttonB">🅱️</button>
+                <span class="button-label">Button B</span>
+                <span class="button-state" id="buttonBState">Released</span>
+            </div>
+        </div>
+
+        <div class="latch-hint" id="latchHint" style="display: none;">
+            <strong>🧠 Memory Mode!</strong>
+            Button A = SET (turn ON) | Button B = RESET (turn OFF)<br>
+            The light remembers its state!
+        </div>
+
+        <div class="truth-table">
+            <div class="truth-table-title">📊 Truth Table</div>
+            <table id="truthTable">
+                <!-- Dynamic truth table -->
+            </table>
+        </div>
+
+        <nav class="navigation">
+            <button class="nav-button" id="prevBtn" disabled>
+                ⬅️ Previous
+            </button>
+            <div class="page-dots" id="pageDots">
+                <!-- Dynamic dots -->
+            </div>
+            <button class="nav-button" id="nextBtn">
+                Next ➡️
+            </button>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Press buttons, flip pages, and discover how computers think! 🧠✨</p>
+    </footer>
+
+    <script>
+        // Page definitions
+        const pages = [
+            {
+                name: "WIRE",
+                emoji: "🔌",
+                description: "The simplest connection! Press the button and watch the light turn on!",
+                logic: (a, b) => a,
+                showButtonB: false,
+                truthTable: [
+                    { a: 0, output: 0 },
+                    { a: 1, output: 1 }
+                ],
+                circuit: "🔴 ➜ ⚡ ➜ 💡"
+            },
+            {
+                name: "NOT",
+                emoji: "🔄",
+                description: "The inverter! The light is ON when the button is NOT pressed!",
+                logic: (a, b) => !a,
+                showButtonB: false,
+                truthTable: [
+                    { a: 0, output: 1 },
+                    { a: 1, output: 0 }
+                ],
+                circuit: "🔴 ➜ 🚫 ➜ 💡"
+            },
+            {
+                name: "OR",
+                emoji: "➕",
+                description: "Either one works! Press A OR B (or both!) to turn on the light!",
+                logic: (a, b) => a || b,
+                showButtonB: true,
+                truthTable: [
+                    { a: 0, b: 0, output: 0 },
+                    { a: 0, b: 1, output: 1 },
+                    { a: 1, b: 0, output: 1 },
+                    { a: 1, b: 1, output: 1 }
+                ],
+                circuit: "🔴🔵 ➜ ⚡OR⚡ ➜ 💡"
+            },
+            {
+                name: "AND",
+                emoji: "🤝",
+                description: "Teamwork! Press BOTH A AND B together to turn on the light!",
+                logic: (a, b) => a && b,
+                showButtonB: true,
+                truthTable: [
+                    { a: 0, b: 0, output: 0 },
+                    { a: 0, b: 1, output: 0 },
+                    { a: 1, b: 0, output: 0 },
+                    { a: 1, b: 1, output: 1 }
+                ],
+                circuit: "🔴🔵 ➜ ⚡AND⚡ ➜ 💡"
+            },
+            {
+                name: "XOR",
+                emoji: "⚖️",
+                description: "Exclusive! Press exactly ONE button - not both, not neither!",
+                logic: (a, b) => (a && !b) || (!a && b),
+                showButtonB: true,
+                truthTable: [
+                    { a: 0, b: 0, output: 0 },
+                    { a: 0, b: 1, output: 1 },
+                    { a: 1, b: 0, output: 1 },
+                    { a: 1, b: 1, output: 0 }
+                ],
+                circuit: "🔴🔵 ➜ ⚡XOR⚡ ➜ 💡"
+            },
+            {
+                name: "LATCH",
+                emoji: "🧠",
+                description: "Memory! Press A to turn ON, press B to turn OFF. It remembers!",
+                logic: null, // Special handling
+                showButtonB: true,
+                isLatch: true,
+                truthTable: [
+                    { a: "SET", b: "-", output: 1 },
+                    { a: "-", b: "RESET", output: 0 }
+                ],
+                circuit: "🔴SET 🔵RESET ➜ 🧠 ➜ 💡"
+            }
+        ];
+
+        // State
+        let currentPage = 0;
+        let buttonAPressed = false;
+        let buttonBPressed = false;
+        let latchState = false;
+        let lastLedState = false;
+
+        // DOM elements
+        const led = document.getElementById('led');
+        const buttonA = document.getElementById('buttonA');
+        const buttonB = document.getElementById('buttonB');
+        const buttonAWrapper = document.getElementById('buttonAWrapper');
+        const buttonBWrapper = document.getElementById('buttonBWrapper');
+        const buttonAState = document.getElementById('buttonAState');
+        const buttonBState = document.getElementById('buttonBState');
+        const outputState = document.getElementById('outputState');
+        const pageNum = document.getElementById('pageNum');
+        const gateName = document.getElementById('gateName');
+        const gateEmoji = document.getElementById('gateEmoji');
+        const gateDescription = document.getElementById('gateDescription');
+        const circuitDiagram = document.getElementById('circuitDiagram');
+        const truthTable = document.getElementById('truthTable');
+        const pageDots = document.getElementById('pageDots');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const latchHint = document.getElementById('latchHint');
+        const particlesContainer = document.getElementById('particles');
+
+        // Create floating decorations
+        function createDecorations() {
+            const decorations = document.getElementById('decorations');
+            const emojis = ['💡', '🔌', '⚡', '🔴', '🔵', '💻', '🧠', '⚙️', '🎮', '✨'];
+            
+            for (let i = 0; i < 15; i++) {
+                const deco = document.createElement('div');
+                deco.className = 'decoration';
+                deco.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                deco.style.left = `${Math.random() * 100}%`;
+                deco.style.top = `${Math.random() * 100}%`;
+                deco.style.animationDelay = `${Math.random() * 5}s`;
+                deco.style.animationDuration = `${15 + Math.random() * 10}s`;
+                decorations.appendChild(deco);
+            }
+        }
+
+        // Create page dots
+        function createPageDots() {
+            pageDots.innerHTML = '';
+            pages.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `page-dot ${index === currentPage ? 'active' : ''}`;
+                dot.addEventListener('click', () => goToPage(index));
+                pageDots.appendChild(dot);
+            });
+        }
+
+        // Celebration particles
+        function celebrate() {
+            const emojis = ['🎉', '✨', '⭐', '🌟', '💫', '🎊', '💡', '🔥'];
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = '-50px';
+                    particle.style.animationDuration = `${1.5 + Math.random()}s`;
+                    particlesContainer.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 2000);
+                }, i * 50);
+            }
+        }
+
+        // Update LED state
+        function updateLED() {
+            const page = pages[currentPage];
+            let isOn;
+
+            if (page.isLatch) {
+                // Latch mode: A sets, B resets
+                if (buttonAPressed && !buttonBPressed) {
+                    latchState = true;
+                } else if (buttonBPressed && !buttonAPressed) {
+                    latchState = false;
+                }
+                isOn = latchState;
+            } else {
+                isOn = page.logic(buttonAPressed, buttonBPressed);
+            }
+
+            // Update LED visual
+            if (isOn) {
+                led.classList.add('on');
+                led.textContent = '💡';
+                outputState.textContent = 'ON';
+                outputState.style.color = '#27ae60';
+                
+                // Celebrate when LED turns on (but not repeatedly)
+                if (!lastLedState) {
+                    celebrate();
+                }
+            } else {
+                led.classList.remove('on');
+                led.textContent = '💡';
+                outputState.textContent = 'OFF';
+                outputState.style.color = '#e74c3c';
+            }
+
+            lastLedState = isOn;
+
+            // Update button states
+            buttonAState.textContent = buttonAPressed ? 'Pressed!' : 'Released';
+            buttonAState.className = `button-state ${buttonAPressed ? 'on' : ''}`;
+            buttonBState.textContent = buttonBPressed ? 'Pressed!' : 'Released';
+            buttonBState.className = `button-state ${buttonBPressed ? 'on' : ''}`;
+
+            // Highlight active truth table row
+            updateTruthTableHighlight();
+        }
+
+        // Update truth table highlight
+        function updateTruthTableHighlight() {
+            const page = pages[currentPage];
+            const rows = truthTable.querySelectorAll('tbody tr');
+            
+            rows.forEach((row, index) => {
+                row.classList.remove('active');
+                
+                if (page.isLatch) {
+                    // Special handling for latch
+                    if (index === 0 && buttonAPressed) row.classList.add('active');
+                    if (index === 1 && buttonBPressed) row.classList.add('active');
+                } else if (!page.showButtonB) {
+                    // Single button gates
+                    if ((buttonAPressed && index === 1) || (!buttonAPressed && index === 0)) {
+                        row.classList.add('active');
+                    }
+                } else {
+                    // Two button gates
+                    const a = buttonAPressed ? 1 : 0;
+                    const b = buttonBPressed ? 1 : 0;
+                    const tableRow = page.truthTable[index];
+                    if (tableRow.a === a && tableRow.b === b) {
+                        row.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        // Render truth table
+        function renderTruthTable() {
+            const page = pages[currentPage];
+            let html = '<thead><tr>';
+            
+            if (page.showButtonB) {
+                html += '<th>🔴 A</th><th>🔵 B</th>';
+            } else {
+                html += '<th>🔴 A</th>';
+            }
+            html += '<th>💡 OUT</th></tr></thead><tbody>';
+
+            page.truthTable.forEach(row => {
+                html += '<tr>';
+                if (typeof row.a === 'string') {
+                    html += `<td>${row.a}</td>`;
+                } else {
+                    html += `<td><span class="truth-value ${row.a ? 'one' : 'zero'}">${row.a}</span></td>`;
+                }
+                
+                if (page.showButtonB) {
+                    if (typeof row.b === 'string') {
+                        html += `<td>${row.b}</td>`;
+                    } else {
+                        html += `<td><span class="truth-value ${row.b ? 'one' : 'zero'}">${row.b}</span></td>`;
+                    }
+                }
+                
+                html += `<td><span class="truth-value ${row.output ? 'one' : 'zero'}">${row.output}</span></td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody>';
+            truthTable.innerHTML = html;
+        }
+
+        // Render circuit diagram
+        function renderCircuit() {
+            const page = pages[currentPage];
+            circuitDiagram.innerHTML = `<div style="font-size: 1.5rem; letter-spacing: 5px;">${page.circuit}</div>`;
+        }
+
+        // Go to specific page
+        function goToPage(index) {
+            if (index < 0 || index >= pages.length) return;
+            
+            currentPage = index;
+            const page = pages[currentPage];
+
+            // Reset states
+            buttonAPressed = false;
+            buttonBPressed = false;
+            latchState = false;
+            lastLedState = false;
+            buttonA.classList.remove('pressed');
+            buttonB.classList.remove('pressed');
+
+            // Update page content
+            pageNum.textContent = currentPage + 1;
+            gateName.textContent = page.name;
+            gateEmoji.textContent = page.emoji;
+            gateDescription.textContent = page.description;
+
+            // Show/hide button B
+            buttonBWrapper.style.display = page.showButtonB ? 'flex' : 'none';
+
+            // Show/hide latch hint
+            latchHint.style.display = page.isLatch ? 'block' : 'none';
+
+            // Update navigation
+            prevBtn.disabled = currentPage === 0;
+            nextBtn.disabled = currentPage === pages.length - 1;
+
+            // Update dots
+            document.querySelectorAll('.page-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentPage);
+            });
+
+            // Render components
+            renderTruthTable();
+            renderCircuit();
+            updateLED();
+        }
+
+        // Button event handlers
+        function setupButtonEvents(button, isButtonA) {
+            const setPressed = (pressed) => {
+                if (isButtonA) {
+                    buttonAPressed = pressed;
+                    button.classList.toggle('pressed', pressed);
+                } else {
+                    buttonBPressed = pressed;
+                    button.classList.toggle('pressed', pressed);
+                }
+                updateLED();
+            };
+
+            // Mouse events
+            button.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                setPressed(true);
+            });
+            button.addEventListener('mouseup', () => setPressed(false));
+            button.addEventListener('mouseleave', () => setPressed(false));
+
+            // Touch events
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                setPressed(true);
+            });
+            button.addEventListener('touchend', () => setPressed(false));
+            button.addEventListener('touchcancel', () => setPressed(false));
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'a' || e.key === 'A') {
+                buttonAPressed = true;
+                buttonA.classList.add('pressed');
+                updateLED();
+            }
+            if ((e.key === 'b' || e.key === 'B') && pages[currentPage].showButtonB) {
+                buttonBPressed = true;
+                buttonB.classList.add('pressed');
+                updateLED();
+            }
+            if (e.key === 'ArrowLeft') {
+                goToPage(currentPage - 1);
+            }
+            if (e.key === 'ArrowRight') {
+                goToPage(currentPage + 1);
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'a' || e.key === 'A') {
+                buttonAPressed = false;
+                buttonA.classList.remove('pressed');
+                updateLED();
+            }
+            if (e.key === 'b' || e.key === 'B') {
+                buttonBPressed = false;
+                buttonB.classList.remove('pressed');
+                updateLED();
+            }
+        });
+
+        // Initialize
+        function init() {
+            createDecorations();
+            createPageDots();
+            setupButtonEvents(buttonA, true);
+            setupButtonEvents(buttonB, false);
+            
+            prevBtn.addEventListener('click', () => goToPage(currentPage - 1));
+            nextBtn.addEventListener('click', () => goToPage(currentPage + 1));
+
+            goToPage(0);
+        }
+
+        init();
+    </script>
+</body>
+</html>
