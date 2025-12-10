@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 Advanced Logic Lab - Level Up! 🚀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient-1: #667eea;
+            --bg-gradient-2: #764ba2;
+            --bg-gradient-3: #f093fb;
+            --switch-track: #555;
+            --switch-track-on: #4ECDC4;
+            --switch-handle: #fff;
+            --led-off: #333;
+            --led-on-1: #FF6B6B;
+            --led-on-2: #4ECDC4;
+            --led-on-3: #FFE66D;
+            --led-on-4: #A66CFF;
+            --led-on-5: #9CFF6C;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Floating decorations */
+        .decorations {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .decoration {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.2;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(10deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(20px) rotate(-10deg); }
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: 'Nunito', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            color: white;
+            text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-top: 8px;
+            box-shadow: 0 3px 10px rgba(255,165,0,0.4);
+        }
+
+        /* Book container */
+        .book {
+            background: var(--card-bg);
+            border-radius: 30px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.2),
+                0 0 0 8px rgba(255,255,255,0.3),
+                inset 0 2px 0 rgba(255,255,255,0.5);
+            max-width: 700px;
+            width: 100%;
+            padding: 30px;
+            z-index: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* Page header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .page-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .gate-name {
+            font-family: 'Nunito', sans-serif;
+            font-size: 2.2rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .gate-emoji {
+            font-size: 2.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .gate-description {
+            color: var(--text-light);
+            font-size: 1.05rem;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* Circuit display */
+        .circuit-area {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 3px solid #0f3460;
+        }
+
+        .circuit-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 1.5rem;
+            min-height: 60px;
+            color: #4ECDC4;
+            font-weight: 600;
+        }
+
+        /* 5 LED Display */
+        .leds-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .leds-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .led-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .led {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--led-off);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.15s ease;
+            box-shadow: 
+                inset 0 -5px 10px rgba(0,0,0,0.3),
+                0 3px 10px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .led.on {
+            box-shadow: 
+                inset 0 -5px 10px rgba(0,0,0,0.1),
+                0 0 30px currentColor,
+                0 0 60px currentColor,
+                0 3px 10px rgba(0,0,0,0.2);
+            animation: ledGlow 0.3s ease;
+        }
+
+        .led-0.on { background: radial-gradient(circle at 30% 30%, #FF9999 0%, var(--led-on-1) 60%); color: var(--led-on-1); }
+        .led-1.on { background: radial-gradient(circle at 30% 30%, #7EDAD4 0%, var(--led-on-2) 60%); color: var(--led-on-2); }
+        .led-2.on { background: radial-gradient(circle at 30% 30%, #FFF59D 0%, var(--led-on-3) 60%); color: var(--led-on-3); }
+        .led-3.on { background: radial-gradient(circle at 30% 30%, #C9A6FF 0%, var(--led-on-4) 60%); color: var(--led-on-4); }
+        .led-4.on { background: radial-gradient(circle at 30% 30%, #C6FFB3 0%, var(--led-on-5) 60%); color: var(--led-on-5); }
+
+        @keyframes ledGlow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .led-label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .output-display {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            color: #4ECDC4;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        /* Switches area */
+        .switches-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .switch-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-switch {
+            width: 60px;
+            height: 100px;
+            background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 
+                inset 0 5px 15px rgba(0,0,0,0.5),
+                0 5px 15px rgba(0,0,0,0.3);
+            border: 3px solid #444;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(180deg, #f0f0f0 0%, #ccc 100%);
+            border-radius: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 5px;
+            transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 
+                0 5px 15px rgba(0,0,0,0.4),
+                inset 0 -3px 5px rgba(0,0,0,0.1),
+                inset 0 3px 5px rgba(255,255,255,0.8);
+        }
+
+        .toggle-switch.on {
+            background: linear-gradient(180deg, #3DB8B0 0%, #2a8a84 100%);
+            border-color: #4ECDC4;
+        }
+
+        .toggle-switch.on::before {
+            bottom: calc(100% - 51px);
+            background: linear-gradient(180deg, #fff 0%, #e0e0e0 100%);
+        }
+
+        .switch-label {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-dark);
+        }
+
+        .switch-state {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: #eee;
+        }
+
+        .switch-state.on {
+            background: #4ECDC4;
+            color: white;
+        }
+
+        /* Info box */
+        .info-box {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #00695c;
+            border-left: 5px solid #00bcd4;
+        }
+
+        .info-box strong {
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        /* Binary display */
+        .binary-display {
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px auto;
+            max-width: 400px;
+        }
+
+        .binary-title {
+            color: #4ECDC4;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .binary-bits {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .bit {
+            width: 40px;
+            height: 40px;
+            background: #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .bit.on {
+            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+            color: white;
+            box-shadow: 0 0 15px rgba(78,205,196,0.5);
+        }
+
+        .bit-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        /* Memory display */
+        .memory-display {
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px auto;
+            max-width: 350px;
+        }
+
+        .memory-title {
+            color: #A66CFF;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .memory-cell {
+            background: #333;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .memory-cell.selected {
+            background: linear-gradient(135deg, #A66CFF 0%, #764ba2 100%);
+            box-shadow: 0 0 15px rgba(166,108,255,0.5);
+        }
+
+        .memory-cell.selected .cell-value {
+            color: white;
+        }
+
+        .cell-addr {
+            font-size: 0.65rem;
+            color: #888;
+            margin-bottom: 3px;
+        }
+
+        .cell-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #4ECDC4;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .page-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .page-dot:hover {
+            background: #bbb;
+        }
+
+        .page-dot.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: scale(1.2);
+        }
+
+        /* Celebration particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .particle {
+            position: absolute;
+            font-size: 2rem;
+            animation: particleFall 2s ease-out forwards;
+        }
+
+        @keyframes particleFall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg) scale(0);
+            }
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            z-index: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .book {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .gate-name {
+                font-size: 1.8rem;
+            }
+
+            .switches-container {
+                gap: 15px;
+            }
+
+            .toggle-switch {
+                width: 50px;
+                height: 85px;
+            }
+
+            .toggle-switch::before {
+                width: 38px;
+                height: 38px;
+            }
+
+            .toggle-switch.on::before {
+                bottom: calc(100% - 43px);
+            }
+
+            .led {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .leds-row {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating decorations -->
+    <div class="decorations" id="decorations"></div>
+    
+    <!-- Celebration particles container -->
+    <div class="particles" id="particles"></div>
+
+    <header>
+        <h1>🔬 Advanced Logic Lab 🚀</h1>
+        <p class="subtitle">Master Digital Circuits! ⚡</p>
+        <div class="level-badge">⭐ LEVEL 2 - Big Kids Edition</div>
+    </header>
+
+    <main class="book">
+        <div class="page-header">
+            <div class="page-number">Page <span id="pageNum">1</span> of 6</div>
+            <h2 class="gate-name">
+                <span class="gate-emoji" id="gateEmoji">🔒</span>
+                <span id="gateName">D-LATCH</span>
+            </h2>
+            <p class="gate-description" id="gateDescription">
+                A memory cell! Store a bit when the clock is enabled!
+            </p>
+        </div>
+
+        <div class="circuit-area">
+            <div class="circuit-diagram" id="circuitDiagram">
+                <!-- Dynamic circuit diagram -->
+            </div>
+        </div>
+
+        <div class="leds-container">
+            <div class="leds-row" id="ledsRow">
+                <!-- Dynamic LEDs -->
+            </div>
+            <div class="output-display" id="outputDisplay">OUTPUT: 00000</div>
+        </div>
+
+        <div class="switches-container" id="switchesContainer">
+            <!-- Dynamic switches -->
+        </div>
+
+        <div class="info-box" id="infoBox">
+            <strong>💡 How it works:</strong>
+            <span id="infoText">Flip the switches and watch the magic happen!</span>
+        </div>
+
+        <div class="binary-display" id="binaryDisplay">
+            <!-- Dynamic binary display -->
+        </div>
+
+        <div class="memory-display" id="memoryDisplay" style="display: none;">
+            <!-- Dynamic memory display -->
+        </div>
+
+        <nav class="navigation">
+            <button class="nav-button" id="prevBtn" disabled>
+                ⬅️ Previous
+            </button>
+            <div class="page-dots" id="pageDots">
+                <!-- Dynamic dots -->
+            </div>
+            <button class="nav-button" id="nextBtn">
+                Next ➡️
+            </button>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Flip switches, explore circuits, and become a logic master! 🧠✨</p>
+    </footer>
+
+    <script>
+        // Page definitions
+        const pages = [
+            {
+                name: "D-LATCH",
+                emoji: "🔒",
+                description: "A memory cell! When ENABLE is ON, the output follows DATA. When ENABLE is OFF, the output is locked!",
+                switches: [
+                    { name: "DATA", label: "D" },
+                    { name: "ENABLE", label: "E" }
+                ],
+                numLeds: 1,
+                ledLabels: ["Q"],
+                reverseLeds: false,
+                circuit: "📥 DATA ➜ 🔒 LATCH ➜ 📤 Q",
+                info: "The D-Latch captures data when enabled. It's the building block of computer memory!",
+                logic: (switches, state) => {
+                    if (switches[1]) { // Enable is ON
+                        state.latchQ = switches[0]; // Q follows D
+                    }
+                    return [state.latchQ ? 1 : 0];
+                }
+            },
+            {
+                name: "SHIFT REGISTER",
+                emoji: "📜",
+                description: "Data shifts through! Each clock pulse moves bits to the right!",
+                switches: [
+                    { name: "DATA IN", label: "IN" },
+                    { name: "CLOCK", label: "CLK" }
+                ],
+                numLeds: 4,
+                ledLabels: ["Q3", "Q2", "Q1", "Q0"],
+                reverseLeds: false,
+                circuit: "📥 IN ➜ [Q3][Q2][Q1][Q0] ➜ 📤",
+                info: "Press CLOCK to shift! New data enters from the left, old data moves right!",
+                logic: (switches, state) => {
+                    if (switches[1] && !state.lastClock) { // Rising edge
+                        state.shiftReg = ((state.shiftReg || 0) >> 1) | (switches[0] ? 8 : 0);
+                    }
+                    state.lastClock = switches[1];
+                    const bits = state.shiftReg || 0;
+                    return [(bits >> 3) & 1, (bits >> 2) & 1, (bits >> 1) & 1, bits & 1];
+                }
+            },
+            {
+                name: "MULTIPLEXER",
+                emoji: "🔀",
+                description: "A data selector! Use SELECT switches to choose which input to show!",
+                switches: [
+                    { name: "INPUT 0", label: "I0" },
+                    { name: "INPUT 1", label: "I1" },
+                    { name: "INPUT 2", label: "I2" },
+                    { name: "INPUT 3", label: "I3" },
+                    { name: "SEL 1", label: "S1" },
+                    { name: "SEL 0", label: "S0" }
+                ],
+                numLeds: 1,
+                ledLabels: ["OUT"],
+                reverseLeds: false,
+                circuit: "🔢 [I0-I3] ➜ 🔀 MUX ➜ 📤 OUT",
+                info: "S1 S0 = 00→I0, 01→I1, 10→I2, 11→I3. Select which input goes to output!",
+                logic: (switches, state) => {
+                    const sel = (switches[4] ? 2 : 0) + (switches[5] ? 1 : 0);
+                    return [switches[sel] ? 1 : 0];
+                }
+            },
+            {
+                name: "DECODER",
+                emoji: "🎯",
+                description: "Turns a binary number into one-hot output! Only ONE LED lights up!",
+                switches: [
+                    { name: "A1", label: "A1" },
+                    { name: "A0", label: "A0" }
+                ],
+                numLeds: 4,
+                ledLabels: ["Y3", "Y2", "Y1", "Y0"],
+                reverseLeds: false,
+                circuit: "🔢 [A1 A0] ➜ 🎯 DECODE ➜ [Y3-Y0]",
+                info: "00→Y0, 01→Y1, 10→Y2, 11→Y3. Only one output is active at a time!",
+                logic: (switches, state) => {
+                    const addr = (switches[0] ? 2 : 0) + (switches[1] ? 1 : 0);
+                    return [addr === 3 ? 1 : 0, addr === 2 ? 1 : 0, addr === 1 ? 1 : 0, addr === 0 ? 1 : 0];
+                }
+            },
+            {
+                name: "MEMORY READ",
+                emoji: "📖",
+                description: "Read from memory! Select an address to see what's stored!",
+                switches: [
+                    { name: "ADDR 1", label: "A1" },
+                    { name: "ADDR 0", label: "A0" }
+                ],
+                numLeds: 4,
+                ledLabels: ["D3", "D2", "D1", "D0"],
+                reverseLeds: false,
+                circuit: "📍 ADDR ➜ 🗄️ MEMORY ➜ 📤 DATA",
+                info: "Each memory location stores a different 4-bit value. Select address to read!",
+                showMemory: true,
+                memoryData: [0b1010, 0b0101, 0b1100, 0b0011], // Pre-stored values
+                logic: (switches, state) => {
+                    const addr = (switches[0] ? 2 : 0) + (switches[1] ? 1 : 0);
+                    state.selectedAddr = addr;
+                    const data = pages[4].memoryData[addr];
+                    return [(data >> 3) & 1, (data >> 2) & 1, (data >> 1) & 1, data & 1];
+                }
+            },
+            {
+                name: "MEMORY WRITE",
+                emoji: "✏️",
+                description: "Write to memory! Set data, select address, then pulse WRITE!",
+                switches: [
+                    { name: "DATA 1", label: "D1" },
+                    { name: "DATA 0", label: "D0" },
+                    { name: "ADDR 1", label: "A1" },
+                    { name: "ADDR 0", label: "A0" },
+                    { name: "WRITE", label: "WR" }
+                ],
+                numLeds: 5,
+                ledLabels: ["D1", "D0", "A1", "A0", "WR"],
+                reverseLeds: false,
+                circuit: "📝 DATA ➜ 🗄️ MEMORY[ADDR] ➜ ✅",
+                info: "Set D1-D0 for data (MSB-LSB), A1-A0 for address, then flip WRITE to store!",
+                showMemory: true,
+                memoryWritable: true,
+                logic: (switches, state) => {
+                    const addr = (switches[2] ? 2 : 0) + (switches[3] ? 1 : 0);
+                    const data = (switches[0] ? 2 : 0) + (switches[1] ? 1 : 0);
+                    state.selectedAddr = addr;
+                    
+                    if (switches[4] && !state.lastWrite) { // Rising edge of WRITE
+                        if (!state.writableMemory) {
+                            state.writableMemory = [0, 0, 0, 0];
+                        }
+                        state.writableMemory[addr] = data;
+                    }
+                    state.lastWrite = switches[4];
+                    
+                    return [switches[0] ? 1 : 0, switches[1] ? 1 : 0, switches[2] ? 1 : 0, switches[3] ? 1 : 0, switches[4] ? 1 : 0];
+                }
+            }
+        ];
+
+        // State
+        let currentPage = 0;
+        let switchStates = [];
+        let pageState = {};
+
+        // DOM elements
+        const ledsRow = document.getElementById('ledsRow');
+        const switchesContainer = document.getElementById('switchesContainer');
+        const outputDisplay = document.getElementById('outputDisplay');
+        const pageNum = document.getElementById('pageNum');
+        const gateName = document.getElementById('gateName');
+        const gateEmoji = document.getElementById('gateEmoji');
+        const gateDescription = document.getElementById('gateDescription');
+        const circuitDiagram = document.getElementById('circuitDiagram');
+        const binaryDisplay = document.getElementById('binaryDisplay');
+        const memoryDisplay = document.getElementById('memoryDisplay');
+        const infoBox = document.getElementById('infoBox');
+        const infoText = document.getElementById('infoText');
+        const pageDots = document.getElementById('pageDots');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const particlesContainer = document.getElementById('particles');
+
+        // Create floating decorations
+        function createDecorations() {
+            const decorations = document.getElementById('decorations');
+            const emojis = ['💡', '🔌', '⚡', '🔀', '📜', '💻', '🧠', '⚙️', '🎮', '✨', '🔒', '📖', '✏️'];
+            
+            for (let i = 0; i < 15; i++) {
+                const deco = document.createElement('div');
+                deco.className = 'decoration';
+                deco.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                deco.style.left = `${Math.random() * 100}%`;
+                deco.style.top = `${Math.random() * 100}%`;
+                deco.style.animationDelay = `${Math.random() * 5}s`;
+                deco.style.animationDuration = `${15 + Math.random() * 10}s`;
+                decorations.appendChild(deco);
+            }
+        }
+
+        // Create page dots
+        function createPageDots() {
+            pageDots.innerHTML = '';
+            pages.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `page-dot ${index === currentPage ? 'active' : ''}`;
+                dot.addEventListener('click', () => goToPage(index));
+                pageDots.appendChild(dot);
+            });
+        }
+
+        // Celebration particles
+        function celebrate() {
+            const emojis = ['🎉', '✨', '⭐', '🌟', '💫', '🎊', '💡', '🔥', '🚀'];
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = '-50px';
+                    particle.style.animationDuration = `${1.5 + Math.random()}s`;
+                    particlesContainer.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 2000);
+                }, i * 40);
+            }
+        }
+
+        // Create LEDs
+        function createLEDs() {
+            const page = pages[currentPage];
+            ledsRow.innerHTML = '';
+            
+            for (let i = 0; i < page.numLeds; i++) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'led-wrapper';
+                
+                const led = document.createElement('div');
+                led.className = `led led-${i % 5}`;
+                led.id = `led-${i}`;
+                led.textContent = '💡';
+                
+                const label = document.createElement('div');
+                label.className = 'led-label';
+                label.textContent = page.ledLabels[i] || `LED ${i}`;
+                
+                wrapper.appendChild(led);
+                wrapper.appendChild(label);
+                ledsRow.appendChild(wrapper);
+            }
+        }
+
+        // Create switches
+        function createSwitches() {
+            const page = pages[currentPage];
+            switchesContainer.innerHTML = '';
+            switchStates = new Array(page.switches.length).fill(false);
+            
+            page.switches.forEach((sw, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'switch-wrapper';
+                
+                const toggle = document.createElement('div');
+                toggle.className = 'toggle-switch';
+                toggle.id = `switch-${index}`;
+                toggle.addEventListener('click', () => toggleSwitch(index));
+                
+                const label = document.createElement('div');
+                label.className = 'switch-label';
+                label.textContent = sw.label;
+                
+                const state = document.createElement('div');
+                state.className = 'switch-state';
+                state.id = `switch-state-${index}`;
+                state.textContent = 'OFF';
+                
+                wrapper.appendChild(toggle);
+                wrapper.appendChild(label);
+                wrapper.appendChild(state);
+                switchesContainer.appendChild(wrapper);
+            });
+        }
+
+        // Toggle switch
+        function toggleSwitch(index) {
+            switchStates[index] = !switchStates[index];
+            
+            const toggle = document.getElementById(`switch-${index}`);
+            const state = document.getElementById(`switch-state-${index}`);
+            
+            if (switchStates[index]) {
+                toggle.classList.add('on');
+                state.classList.add('on');
+                state.textContent = 'ON';
+            } else {
+                toggle.classList.remove('on');
+                state.classList.remove('on');
+                state.textContent = 'OFF';
+            }
+            
+            updateOutput();
+        }
+
+        // Update output
+        function updateOutput() {
+            const page = pages[currentPage];
+            const outputs = page.logic(switchStates, pageState);
+            
+            let anyOn = false;
+            let wasAllOff = true;
+            
+            // Check previous state
+            for (let i = 0; i < page.numLeds; i++) {
+                const led = document.getElementById(`led-${i}`);
+                if (led.classList.contains('on')) wasAllOff = false;
+            }
+            
+            // Update LEDs
+            for (let i = 0; i < outputs.length && i < page.numLeds; i++) {
+                const led = document.getElementById(`led-${i}`);
+                if (outputs[i]) {
+                    led.classList.add('on');
+                    anyOn = true;
+                } else {
+                    led.classList.remove('on');
+                }
+            }
+            
+            // Celebrate if something turned on
+            if (anyOn && wasAllOff) {
+                celebrate();
+            }
+            
+            // Update output display
+            const binaryStr = outputs.map(o => o ? '1' : '0').join('');
+            outputDisplay.textContent = `OUTPUT: ${binaryStr}`;
+            
+            // Update binary display
+            updateBinaryDisplay(outputs);
+            
+            // Update memory display if needed
+            if (page.showMemory) {
+                updateMemoryDisplay();
+            }
+        }
+
+        // Update binary display
+        function updateBinaryDisplay(outputs) {
+            const page = pages[currentPage];
+            let html = `<div class="binary-title">🔢 Binary Output (MSB ← → LSB)</div><div class="binary-bits">`;
+            
+            outputs.forEach((bit, i) => {
+                html += `<div style="display:flex;flex-direction:column;align-items:center;">
+                    <div class="bit ${bit ? 'on' : ''}">${bit}</div>
+                    <div class="bit-label">${page.ledLabels[i] || `B${outputs.length - 1 - i}`}</div>
+                </div>`;
+            });
+            
+            html += `</div>`;
+            binaryDisplay.innerHTML = html;
+        }
+
+        // Update memory display
+        function updateMemoryDisplay() {
+            const page = pages[currentPage];
+            if (!page.showMemory) {
+                memoryDisplay.style.display = 'none';
+                return;
+            }
+            
+            memoryDisplay.style.display = 'block';
+            const memData = page.memoryWritable ? (pageState.writableMemory || [0,0,0,0]) : page.memoryData;
+            const selectedAddr = pageState.selectedAddr || 0;
+            
+            let html = `<div class="memory-title">🗄️ Memory Contents</div><div class="memory-grid">`;
+            
+            for (let i = 0; i < 4; i++) {
+                const value = memData[i] || 0;
+                const binStr = value.toString(2).padStart(4, '0');
+                html += `
+                    <div class="memory-cell ${i === selectedAddr ? 'selected' : ''}">
+                        <div class="cell-addr">ADDR ${i}</div>
+                        <div class="cell-value">${binStr}</div>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+            memoryDisplay.innerHTML = html;
+        }
+
+        // Render circuit diagram
+        function renderCircuit() {
+            const page = pages[currentPage];
+            circuitDiagram.innerHTML = page.circuit;
+        }
+
+        // Go to specific page
+        function goToPage(index) {
+            if (index < 0 || index >= pages.length) return;
+            
+            currentPage = index;
+            const page = pages[currentPage];
+
+            // Reset states
+            switchStates = [];
+            pageState = {};
+
+            // Update page content
+            pageNum.textContent = currentPage + 1;
+            gateName.textContent = page.name;
+            gateEmoji.textContent = page.emoji;
+            gateDescription.textContent = page.description;
+            infoText.textContent = page.info;
+
+            // Update navigation
+            prevBtn.disabled = currentPage === 0;
+            nextBtn.disabled = currentPage === pages.length - 1;
+
+            // Update dots
+            document.querySelectorAll('.page-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentPage);
+            });
+
+            // Show/hide memory display
+            memoryDisplay.style.display = page.showMemory ? 'block' : 'none';
+
+            // Render components
+            createLEDs();
+            createSwitches();
+            renderCircuit();
+            updateOutput();
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                goToPage(currentPage - 1);
+            }
+            if (e.key === 'ArrowRight') {
+                goToPage(currentPage + 1);
+            }
+            // Number keys to toggle switches
+            const num = parseInt(e.key);
+            if (!isNaN(num) && num >= 1 && num <= switchStates.length) {
+                toggleSwitch(num - 1);
+            }
+        });
+
+        // Initialize
+        function init() {
+            createDecorations();
+            createPageDots();
+            
+            prevBtn.addEventListener('click', () => goToPage(currentPage - 1));
+            nextBtn.addEventListener('click', () => goToPage(currentPage + 1));
+
+            goToPage(0);
+        }
+
+        init();
+    </script>
+</body>
+</html>
