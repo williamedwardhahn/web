@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MENACE Live Brain Simulator</title>
+    <style>
+        :root {
+            --bg: #fdfcf8;
+            --box-color: #d2b48c;
+            --x-color: #e74c3c;
+            --o-color: #3498db;
+            --accent: #27ae60;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Layout */
+        header { background: #333; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        main { display: flex; flex: 1; overflow: hidden; }
+        
+        #game-side { width: 350px; padding: 20px; border-right: 2px solid #ccc; display: flex; flex-direction: column; align-items: center; }
+        #brain-side { flex: 1; padding: 20px; overflow-y: auto; background: #eee; }
+
+        /* Game Board */
+        .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 5px; margin-bottom: 20px; }
+        .cell { width: 80px; height: 80px; background: white; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 2.5em; font-weight: bold; cursor: pointer; }
+        .cell.o { color: var(--o-color); }
+        .cell.x { color: var(--x-color); }
+
+        /* Matchbox Gallery */
+        .brain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .matchbox {
+            background: var(--box-color);
+            border: 1px solid #8b4513;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            position: relative;
+            transition: transform 0.1s;
+        }
+        .matchbox.active { outline: 3px solid var(--accent); transform: scale(1.05); z-index: 10; }
+        .matchbox.rewarding { background: #90ee90; }
+        .matchbox.punishing { background: #f08080; }
+
+        .mini-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            background: rgba(0,0,0,0.1);
+            margin-bottom: 5px;
+        }
+        .mini-cell {
+            height: 15px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .bead-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+        .bead-count {
+            text-align: center;
+            background: rgba(255,255,255,0.5);
+            padding: 1px;
+            border-radius: 2px;
+        }
+        .bead-count.high { font-weight: bold; color: green; }
+
+        /* Controls */
+        .controls { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        button { padding: 12px; cursor: pointer; border: none; background: #333; color: white; font-weight: bold; border-radius: 4px; }
+        button:hover { background: #555; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .speed-control { margin-top: 10px; font-size: 0.8em; }
+
+        .stats-bar { font-size: 0.9em; margin-top: 20px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>MENACE: Matchbox Engine</div>
+    <div id="game-count">Games Played: 0</div>
+</header>
+
+<main>
+    <section id="game-side">
+        <div id="status">Your turn (X)</div>
+        <div class="board" id="board"></div>
+        
+        <div class="controls">
+            <button id="btn-reset">New Game</button>
+            <button id="btn-train">Train 50 Games (Animated)</button>
+            <div class="speed-control">
+                Training Speed: <input type="range" id="speed" min="1" max="200" value="100">
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            Wins (O): <span id="stat-o">0</span><br>
+            Wins (X): <span id="stat-x">0</span><br>
+            Draws: <span id="stat-draw">0</span><br>
+            Unique Matchboxes: <span id="stat-boxes">0</span>
+        </div>
+    </section>
+
+    <section id="brain-side">
+        <div style="margin-bottom: 10px; font-weight: bold;">The "Brain" (All Matchboxes)</div>
+        <div class="brain-grid" id="brain-grid">
+            </div>
+    </section>
+</main>
+
+<script>
+    const INITIAL_BEADS = 4;
+    const WIN_VAL = 3;
+    const DRAW_VAL = 1;
+    const LOSS_VAL = -1;
+
+    let brain = {}; 
+    let board = Array(9).fill(null);
+    let gameActive = true;
+    let history = [];
+    let stats = { x: 0, o: 0, draw: 0, games: 0 };
+    let isTraining = false;
+
+    // Elements
+    const boardEl = document.getElementById('board');
+    const brainGridEl = document.getElementById('brain-grid');
+    const speedEl = document.getElementById('speed');
+
+    function initBoard() {
+        boardEl.innerHTML = '';
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.addEventListener('click', () => humanMove(i));
+            boardEl.appendChild(cell);
+        }
+    }
+
+    function updateBoardUI() {
+        Array.from(boardEl.children).forEach((cell, i) => {
+            cell.textContent = board[i];
+            cell.className = 'cell' + (board[i] ? ' ' + board[i].toLowerCase() : '');
+        });
+    }
+
+    function humanMove(i) {
+        if (!gameActive || board[i] || isTraining) return;
+        executeMove(i, 'X');
+        if (gameActive) setTimeout(menaceMove, 300);
+    }
+
+    function executeMove(i, player) {
+        board[i] = player;
+        updateBoardUI();
+        const winner = checkWinner();
+        if (winner) endGame(winner);
+    }
+
+    function menaceMove() {
+        if (!gameActive) return;
+        const state = board.join(',');
+        
+        if (!brain[state]) createMatchbox(state);
+        
+        // Highlight active matchbox
+        document.querySelectorAll('.matchbox').forEach(m => m.classList.remove('active'));
+        const mbEl = document.getElementById('mb-' + state);
+        if (mbEl) {
+            mbEl.classList.add('active');
+            mbEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        const move = pickMove(state);
+        history.push({ state, move });
+        executeMove(move, 'O');
+    }
+
+    function pickMove(state) {
+        const beads = brain[state];
+        const total = beads.reduce((a, b) => a + b, 0);
+        if (total === 0) return board.indexOf(null); // Fallback
+
+        let r = Math.floor(Math.random() * total);
+        let sum = 0;
+        for (let i = 0; i < 9; i++) {
+            sum += beads[i];
+            if (r < sum) return i;
+        }
+    }
+
+    function createMatchbox(state) {
+        const beads = board.map(v => v === null ? INITIAL_BEADS : 0);
+        brain[state] = beads;
+
+        const mb = document.createElement('div');
+        mb.className = 'matchbox';
+        mb.id = 'mb-' + state;
+        
+        const miniGrid = state.split(',').map(v => `<div class="mini-cell">${v || ''}</div>`).join('');
+        
+        mb.innerHTML = `
+            <div class="mini-board">${miniGrid}</div>
+            <div class="bead-stats" id="stats-${state}">
+                ${beads.map(b => `<div class="bead-count">${b}</div>`).join('')}
+            </div>
+        `;
+        brainGridEl.appendChild(mb);
+        document.getElementById('stat-boxes').textContent = Object.keys(brain).length;
+    }
+
+    function updateMatchboxUI(state) {
+        const statsEl = document.getElementById('stats-' + state);
+        if (!statsEl) return;
+        const beads = brain[state];
+        const max = Math.max(...beads);
+        statsEl.innerHTML = beads.map(b => `
+            <div class="bead-count ${b === max && b > 0 ? 'high' : ''}">${b}</div>
+        `).join('');
+    }
+
+    function checkWinner() {
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        for (let p of wins) {
+            if (board[p[0]] && board[p[0]] === board[p[1]] && board[p[0]] === board[p[2]]) return board[p[0]];
+        }
+        return board.includes(null) ? null : 'Draw';
+    }
+
+    function endGame(winner) {
+        gameActive = false;
+        stats.games++;
+        if (winner === 'O') stats.o++;
+        else if (winner === 'X') stats.x++;
+        else stats.draw++;
+
+        // Reinforcement
+        const reward = winner === 'O' ? WIN_VAL : (winner === 'Draw' ? DRAW_VAL : LOSS_VAL);
+        
+        history.forEach(step => {
+            brain[step.state][step.move] = Math.max(0, brain[step.state][step.move] + reward);
+            
+            const mbEl = document.getElementById('mb-' + step.state);
+            if (mbEl) {
+                mbEl.classList.add(reward > 0 ? 'rewarding' : 'punishing');
+                setTimeout(() => mbEl.classList.remove('rewarding', 'punishing'), 500);
+            }
+            updateMatchboxUI(step.state);
+        });
+
+        updateStatsUI();
+        document.getElementById('status').textContent = winner === 'Draw' ? "It's a Draw!" : winner + " Wins!";
+    }
+
+    function updateStatsUI() {
+        document.getElementById('stat-o').textContent = stats.o;
+        document.getElementById('stat-x').textContent = stats.x;
+        document.getElementById('stat-draw').textContent = stats.draw;
+        document.getElementById('game-count').textContent = "Games Played: " + stats.games;
+    }
+
+    // Training Animation
+    async function train(num) {
+        isTraining = true;
+        document.getElementById('btn-train').disabled = true;
+        
+        for (let i = 0; i < num; i++) {
+            resetGame();
+            while (gameActive) {
+                // Random move for X
+                const legals = board.map((v, idx) => v === null ? idx : null).filter(v => v !== null);
+                executeMove(legals[Math.floor(Math.random() * legals.length)], 'X');
+                
+                if (gameActive) menaceMove();
+                
+                // Controlled delay for animation
+                await new Promise(r => setTimeout(r, 210 - speedEl.value));
+            }
+        }
+        
+        isTraining = false;
+        document.getElementById('btn-train').disabled = false;
+    }
+
+    function resetGame() {
+        board = Array(9).fill(null);
+        history = [];
+        gameActive = true;
+        if (!isTraining) document.getElementById('status').textContent = "Your turn (X)";
+        updateBoardUI();
+    }
+
+    document.getElementById('btn-reset').addEventListener('click', resetGame);
+    document.getElementById('btn-train').addEventListener('click', () => train(50));
+
+    initBoard();
+</script>
+</body>
+</html>
