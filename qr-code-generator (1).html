@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0c0c0c;
+    --surface: #161616;
+    --border: #2a2a2a;
+    --text: #e8e4de;
+    --muted: #7a756d;
+    --accent: #c4f74a;
+    --accent-dim: #3a4a1a;
+  }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(196, 247, 74, 0.04), transparent),
+      radial-gradient(ellipse 60% 80% at 80% 90%, rgba(196, 247, 74, 0.03), transparent);
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 520px;
+    animation: fadeUp 0.6s ease-out;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .header {
+    margin-bottom: 40px;
+  }
+
+  .header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 3rem;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .header h1 span {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .header p {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  .input-group {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    padding: 18px 20px;
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  textarea::placeholder { color: var(--muted); }
+
+  textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+
+  .options-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .option {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .option label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+
+  .option select, .option input[type="color"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    padding: 10px 14px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .option select:focus, .option input[type="color"]:focus {
+    border-color: var(--accent);
+  }
+
+  .option input[type="color"] {
+    height: 42px;
+    padding: 4px 6px;
+  }
+
+  button.generate {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+
+  button.generate:hover { opacity: 0.9; transform: translateY(-1px); }
+  button.generate:active { transform: translateY(0); }
+
+  .output {
+    margin-top: 32px;
+    display: none;
+    animation: fadeUp 0.4s ease-out;
+  }
+
+  .output.visible { display: block; }
+
+  .qr-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .qr-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+
+  #qrcode {
+    padding: 16px;
+    background: white;
+    border-radius: 8px;
+  }
+
+  #qrcode img, #qrcode canvas { display: block; }
+
+  .qr-text {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+    max-width: 300px;
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .actions button {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .actions button:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .char-count {
+    text-align: right;
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>QR <span>Generate</span></h1>
+    <p>Paste a link or text → get a QR code</p>
+  </div>
+
+  <div class="input-group">
+    <textarea id="textInput" placeholder="https://example.com" maxlength="2000"></textarea>
+    <div class="char-count"><span id="charCount">0</span> / 2000</div>
+  </div>
+
+  <div class="options-row">
+    <div class="option">
+      <label>Size</label>
+      <select id="sizeSelect">
+        <option value="160">Small</option>
+        <option value="256" selected>Medium</option>
+        <option value="400">Large</option>
+      </select>
+    </div>
+    <div class="option">
+      <label>Foreground</label>
+      <input type="color" id="fgColor" value="#000000">
+    </div>
+    <div class="option">
+      <label>Background</label>
+      <input type="color" id="bgColor" value="#ffffff">
+    </div>
+  </div>
+
+  <button class="generate" onclick="generateQR()">Generate QR Code</button>
+
+  <div class="output" id="output">
+    <div class="qr-card">
+      <div id="qrcode"></div>
+      <div class="qr-text" id="qrText"></div>
+      <div class="actions">
+        <button onclick="downloadQR('png')">↓ PNG</button>
+        <button onclick="downloadQR('svg')">↓ SVG</button>
+        <button onclick="copyQR()">Copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const textInput = document.getElementById('textInput');
+  const charCount = document.getElementById('charCount');
+  let qrInstance = null;
+
+  textInput.addEventListener('input', () => {
+    charCount.textContent = textInput.value.length;
+  });
+
+  textInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      generateQR();
+    }
+  });
+
+  function generateQR() {
+    const text = textInput.value.trim();
+    if (!text) { textInput.focus(); return; }
+
+    const size = parseInt(document.getElementById('sizeSelect').value);
+    const fg = document.getElementById('fgColor').value;
+    const bg = document.getElementById('bgColor').value;
+    const container = document.getElementById('qrcode');
+
+    container.innerHTML = '';
+    qrInstance = new QRCode(container, {
+      text: text,
+      width: size,
+      height: size,
+      colorDark: fg,
+      colorLight: bg,
+      correctLevel: QRCode.CorrectLevel.H,
+    });
+
+    document.getElementById('qrText').textContent =
+      text.length > 80 ? text.slice(0, 80) + '…' : text;
+
+    const output = document.getElementById('output');
+    output.classList.add('visible');
+    output.style.animation = 'none';
+    output.offsetHeight; // reflow
+    output.style.animation = '';
+  }
+
+  function downloadQR(format) {
+    const canvas = document.querySelector('#qrcode canvas');
+    if (!canvas) return;
+
+    if (format === 'png') {
+      const link = document.createElement('a');
+      link.download = 'qrcode.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } else if (format === 'svg') {
+      const size = canvas.width;
+      const ctx = canvas.getContext('2d');
+      const imgData = ctx.getImageData(0, 0, size, size);
+      const fg = document.getElementById('fgColor').value;
+      const bg = document.getElementById('bgColor').value;
+      const moduleCount = Math.round(Math.sqrt(
+        [...imgData.data].filter((_, i) => i % 4 === 0).filter(v => v < 128).length
+      ));
+
+      // Simplified SVG from canvas
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">`;
+      svg += `<rect width="${size}" height="${size}" fill="${bg}"/>`;
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const i = (y * size + x) * 4;
+          if (imgData.data[i] < 128) {
+            svg += `<rect x="${x}" y="${y}" width="1" height="1" fill="${fg}"/>`;
+          }
+        }
+      }
+      svg += '</svg>';
+
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      const link = document.createElement('a');
+      link.download = 'qrcode.svg';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+  }
+
+  async function copyQR() {
+    const canvas = document.querySelector('#qrcode canvas');
+    if (!canvas) return;
+    try {
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    } catch {
+      // fallback: copy text
+      navigator.clipboard.writeText(textInput.value.trim());
+    }
+  }
+</script>
+</body>
+</html>
