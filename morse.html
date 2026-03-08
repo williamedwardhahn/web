@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>The Telegrapher's Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IM+Fell+English:ital@0;1&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --parchment: #f4e8c1;
+  --parchment-dark: #e6d5a8;
+  --ink: #2c1810;
+  --ink-light: #5c3a2a;
+  --brass: #c8a84e;
+  --brass-dark: #8b6914;
+  --brass-glow: #e8c860;
+  --copper: #b87333;
+  --telegraph-green: #2a4a2a;
+  --red-wax: #8b2500;
+  --gold: #d4a520;
+  --cream: #faf3e0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'IM Fell English', serif;
+  background: var(--ink);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(44,24,16,0.03) 28px, rgba(44,24,16,0.03) 29px),
+    radial-gradient(ellipse at 30% 20%, #f8efd8 0%, var(--parchment) 50%, var(--parchment-dark) 100%);
+  background-attachment: fixed;
+}
+
+/* Noise overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ─── HEADER ─── */
+.header {
+  text-align: center;
+  padding: 10px 16px 6px;
+  border-bottom: 2px solid var(--ink);
+  position: relative;
+  background: linear-gradient(180deg, rgba(200,168,78,0.15) 0%, transparent 100%);
+}
+
+.header::after {
+  content: '⚡ ━━━━━━━━━━━━━━━━━━━━━ ⚡';
+  display: block;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--brass-dark);
+  margin-top: 4px;
+}
+
+.header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-shadow: 1px 1px 0 rgba(200,168,78,0.3);
+  line-height: 1.1;
+}
+
+.header .subtitle {
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* ─── STATS BAR ─── */
+.stats-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--brass);
+  font-family: 'Special Elite', monospace;
+  font-size: 11px;
+  gap: 4px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.stat-label {
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--copper);
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--brass-glow);
+  text-shadow: 0 0 8px rgba(232,200,96,0.4);
+}
+
+.xp-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.xp-label {
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--copper);
+  text-align: center;
+}
+
+.xp-bar {
+  height: 8px;
+  background: rgba(200,168,78,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--brass-dark);
+  margin-top: 2px;
+}
+
+.xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--brass-dark), var(--brass-glow));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 6px rgba(232,200,96,0.4);
+}
+
+/* ─── TABS ─── */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--ink-light);
+}
+
+.tab {
+  flex: 1;
+  padding: 8px;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  background: var(--parchment-dark);
+  color: var(--ink-light);
+  border: none;
+  border-right: 1px solid var(--ink-light);
+  transition: all 0.2s;
+}
+
+.tab:last-child { border-right: none; }
+
+.tab.active {
+  background: var(--parchment);
+  color: var(--ink);
+  box-shadow: inset 0 -3px 0 var(--brass);
+}
+
+/* ─── PANELS ─── */
+.panel {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.panel.active { display: flex; flex-direction: column; }
+
+/* ─── PRACTICE PANEL ─── */
+.challenge-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  min-height: 0;
+}
+
+.prompt-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--ink-light);
+  margin-bottom: 4px;
+}
+
+.challenge-char {
+  font-family: 'Playfair Display', serif;
+  font-size: 72px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1;
+  text-shadow: 2px 2px 0 rgba(200,168,78,0.3);
+  min-height: 85px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.challenge-morse-hint {
+  font-family: 'Special Elite', monospace;
+  font-size: 22px;
+  color: var(--brass-dark);
+  letter-spacing: 6px;
+  min-height: 28px;
+  margin-top: 2px;
+  transition: opacity 0.3s;
+}
+
+.input-display {
+  margin-top: 12px;
+  padding: 8px 20px;
+  min-width: 160px;
+  min-height: 38px;
+  text-align: center;
+  font-family: 'Special Elite', monospace;
+  font-size: 26px;
+  letter-spacing: 8px;
+  color: var(--telegraph-green);
+  background: rgba(255,255,255,0.4);
+  border: 2px dashed var(--ink-light);
+  border-radius: 4px;
+}
+
+.feedback {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  min-height: 22px;
+  transition: all 0.3s;
+}
+
+.feedback.correct { color: var(--telegraph-green); }
+.feedback.wrong { color: var(--red-wax); }
+
+.streak-display {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--brass-dark);
+  min-height: 16px;
+}
+
+/* ─── TELEGRAPH KEY ─── */
+.key-area {
+  padding: 8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.timing-hint {
+  font-size: 9px;
+  color: var(--ink-light);
+  letter-spacing: 1px;
+}
+
+.telegraph-key {
+  width: 90%;
+  max-width: 320px;
+  height: 72px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  background:
+    radial-gradient(ellipse at 50% 30%, var(--brass-glow) 0%, var(--brass) 40%, var(--brass-dark) 100%);
+  box-shadow:
+    0 6px 0 #6b4f10,
+    0 8px 12px rgba(0,0,0,0.4),
+    inset 0 2px 4px rgba(255,255,255,0.3);
+  transition: all 0.05s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.telegraph-key::before {
+  content: '━━ KEY ━━';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.telegraph-key:active, .telegraph-key.pressed {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 #6b4f10,
+    0 3px 6px rgba(0,0,0,0.3),
+    inset 0 2px 8px rgba(0,0,0,0.2);
+  background:
+    radial-gradient(ellipse at 50% 50%, var(--brass) 0%, var(--brass-dark) 60%, #6b4f10 100%);
+}
+
+.key-actions {
+  display: flex;
+  gap: 12px;
+  width: 90%;
+  max-width: 320px;
+}
+
+.key-btn {
+  flex: 1;
+  padding: 8px;
+  border: 2px solid var(--ink);
+  background: var(--parchment);
+  font-family: 'IM Fell English', serif;
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.key-btn:active {
+  background: var(--ink);
+  color: var(--parchment);
+}
+
+/* ─── TREE PANEL ─── */
+.tree-panel {
+  padding: 12px 8px;
+  align-items: center;
+}
+
+.tree-panel h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.tree-instruction {
+  font-size: 10px;
+  text-align: center;
+  color: var(--ink-light);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.tree-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 20px;
+}
+
+.tree-svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* ─── PROGRESS PANEL ─── */
+.progress-panel { padding: 16px; }
+
+.progress-panel h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.rank-display {
+  text-align: center;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(200,168,78,0.1) 0%, rgba(200,168,78,0.05) 100%);
+  border: 2px solid var(--brass);
+  border-radius: 8px;
+}
+
+.rank-icon { font-size: 36px; }
+
+.rank-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 900;
+  margin-top: 4px;
+  color: var(--ink);
+}
+
+.rank-desc {
+  font-size: 11px;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.letter-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.letter-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ink-light);
+  border-radius: 4px;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  position: relative;
+  background: rgba(255,255,255,0.3);
+}
+
+.letter-cell .lc-morse {
+  font-family: 'Special Elite', monospace;
+  font-size: 7px;
+  color: var(--ink-light);
+  letter-spacing: 1px;
+  margin-top: 1px;
+}
+
+.letter-cell.mastered {
+  background: rgba(42,74,42,0.15);
+  border-color: var(--telegraph-green);
+  color: var(--telegraph-green);
+}
+
+.letter-cell.learning {
+  background: rgba(200,168,78,0.15);
+  border-color: var(--brass);
+}
+
+.letter-cell.locked {
+  background: rgba(0,0,0,0.05);
+  color: #bbb;
+  border-color: #ccc;
+}
+
+.mastery-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--ink-light);
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+
+/* Settings row */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px dashed var(--ink-light);
+  margin-top: 10px;
+}
+
+.settings-row label {
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.toggle {
+  width: 44px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: none;
+}
+
+.toggle.on { background: var(--telegraph-green); }
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle.on::after { transform: translateX(20px); }
+
+/* Animations */
+@keyframes correctFlash {
+  0% { background: transparent; }
+  50% { background: rgba(42,74,42,0.15); }
+  100% { background: transparent; }
+}
+
+@keyframes wrongShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.flash-correct { animation: correctFlash 0.5s ease; }
+.shake-wrong { animation: wrongShake 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.challenge-area { animation: fadeIn 0.3s ease; }
+
+/* Scrollbar */
+.panel::-webkit-scrollbar { width: 4px; }
+.panel::-webkit-scrollbar-thumb { background: var(--brass-dark); border-radius: 2px; }
+
+/* Sound indicator */
+.sound-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--telegraph-green);
+  box-shadow: 0 0 6px rgba(42,74,42,0.6);
+  display: inline-block;
+  opacity: 0;
+  transition: opacity 0.05s;
+}
+
+.sound-dot.on { opacity: 1; }
+
+.difficulty-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.diff-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  font-family: 'IM Fell English', serif;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+  color: var(--ink);
+}
+
+.diff-btn.active {
+  background: var(--ink);
+  color: var(--parchment);
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="subtitle">Est. 1844</div>
+    <h1>The Telegrapher's Academy</h1>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-label">Level</span>
+      <span class="stat-value" id="level">1</span>
+    </div>
+    <div class="xp-bar-wrap">
+      <span class="xp-label">Rank Progress</span>
+      <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Streak</span>
+      <span class="stat-value" id="streakStat">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Score</span>
+      <span class="stat-value" id="scoreStat">0</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" data-tab="practice">⚡ Practice</button>
+    <button class="tab" data-tab="tree">🌳 Tree</button>
+    <button class="tab" data-tab="progress">📊 Progress</button>
+  </div>
+
+  <!-- PRACTICE PANEL -->
+  <div class="panel active" id="practice">
+    <div class="challenge-area" id="challengeArea">
+      <div class="prompt-label">Transmit this character:</div>
+      <div class="challenge-char" id="challengeChar">A</div>
+      <div class="challenge-morse-hint" id="morseHint">· ━</div>
+      <div class="input-display" id="inputDisplay"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="streak-display" id="streakDisplay"></div>
+    </div>
+    <div class="key-area">
+      <div class="timing-hint">Tap: Dot (·) &nbsp;│&nbsp; Hold: Dash (━) &nbsp; <span class="sound-dot" id="soundDot"></span></div>
+      <button class="telegraph-key" id="telegraphKey"></button>
+      <div class="key-actions">
+        <button class="key-btn" id="btnSkip">Skip ⟫</button>
+        <button class="key-btn" id="btnClear">Clear ✕</button>
+        <button class="key-btn" id="btnSubmit">Submit ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TREE PANEL -->
+  <div class="panel" id="tree">
+    <div class="tree-panel">
+      <h2>The Decoding Tree</h2>
+      <div class="tree-instruction">Follow · left, ━ right to decode any signal</div>
+      <div class="tree-container" id="treeContainer"></div>
+    </div>
+  </div>
+
+  <!-- PROGRESS PANEL -->
+  <div class="panel" id="progress">
+    <div class="progress-panel" id="progressContent"></div>
+  </div>
+</div>
+
+<script>
+// ─── MORSE CODE TABLE ───
+const MORSE = {
+  'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....',
+  'I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.',
+  'Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-',
+  'Y':'-.--','Z':'--..','0':'-----','1':'.----','2':'..---','3':'...--','4':'....-',
+  '5':'.....','6':'-....','7':'--...','8':'---..','9':'----.'
+};
+
+const DISPLAY = { '.': '·', '-': '━' };
+function toDisplay(morse) { return morse.split('').map(c => DISPLAY[c] || c).join(' '); }
+
+// ─── RANKS ───
+const RANKS = [
+  { name: 'Office Boy', icon: '📜', xp: 0, desc: 'Every journey begins with a single dot...' },
+  { name: 'Apprentice', icon: '🔧', xp: 50, desc: 'Learning the ways of the wire' },
+  { name: 'Junior Operator', icon: '⚡', xp: 150, desc: 'Your hand grows steady on the key' },
+  { name: 'Telegrapher', icon: '📡', xp: 350, desc: 'A competent hand at the wire' },
+  { name: 'Senior Operator', icon: '🎖️', xp: 600, desc: 'Your signals ring clear and true' },
+  { name: 'Station Master', icon: '🏛️', xp: 1000, desc: 'You command the telegraph office' },
+  { name: 'Chief Telegrapher', icon: '⭐', xp: 1500, desc: 'Recognized across the wire network' },
+  { name: 'Grand Operator', icon: '👑', xp: 2500, desc: 'A legend of the telegraph age' },
+];
+
+// ─── GAME STATE ───
+let state = {
+  xp: 0,
+  score: 0,
+  streak: 0,
+  bestStreak: 0,
+  letterStats: {},
+  showHints: true,
+  difficulty: 'letters', // letters, numbers, mixed
+};
+
+// Load saved state
+try {
+  const saved = localStorage.getItem('morse_trainer_state');
+  if (saved) state = { ...state, ...JSON.parse(saved) };
+} catch(e) {}
+
+function saveState() {
+  try { localStorage.setItem('morse_trainer_state', JSON.stringify(state)); } catch(e) {}
+}
+
+// ─── AUDIO ───
+let audioCtx = null;
+let audioUnlocked = false;
+let activeOsc = null;
+let activeGain = null;
+
+function initAudio() {
+  if (audioCtx) return audioCtx;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) {
+    console.warn('No AudioContext support');
+  }
+  return audioCtx;
+}
+
+async function unlockAudio() {
+  if (audioUnlocked) return;
+  const ctx = initAudio();
+  if (!ctx) return;
+  try {
+    if (ctx.state === 'suspended') await ctx.resume();
+    // Play silent buffer to fully unlock on iOS
+    const buf = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+    audioUnlocked = true;
+    console.log('Audio unlocked, state:', ctx.state);
+  } catch(e) { console.warn('Audio unlock failed', e); }
+}
+
+// Attach unlock to EVERY gesture type
+['touchstart','touchend','mousedown','click','keydown'].forEach(evt => {
+  document.addEventListener(evt, unlockAudio, { capture: true });
+});
+
+function startTone(freq = 650) {
+  const ctx = initAudio();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  stopTone();
+  try {
+    activeOsc = ctx.createOscillator();
+    activeGain = ctx.createGain();
+    activeOsc.type = 'sine';
+    activeOsc.frequency.value = freq;
+    activeGain.gain.setValueAtTime(0.25, ctx.currentTime);
+    activeOsc.connect(activeGain);
+    activeGain.connect(ctx.destination);
+    activeOsc.start();
+  } catch(e) { console.warn('startTone error', e); }
+}
+
+function stopTone() {
+  try {
+    if (activeOsc) { activeOsc.stop(); activeOsc.disconnect(); }
+    if (activeGain) activeGain.disconnect();
+  } catch(e) {}
+  activeOsc = null;
+  activeGain = null;
+}
+
+function playBeep(freq = 650, dur = 0.12) {
+  const ctx = initAudio();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + dur + 0.01);
+  } catch(e) {}
+}
+
+// ─── CHALLENGE SYSTEM ───
+let currentChar = '';
+let inputMorse = '';
+let isKeyDown = false;
+let keyDownTime = 0;
+let charTimeout = null;
+let submitTimeout = null;
+
+function getCharPool() {
+  if (state.difficulty === 'numbers') return '0123456789'.split('');
+  if (state.difficulty === 'mixed') return Object.keys(MORSE);
+  return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+}
+
+function pickChallenge() {
+  const pool = getCharPool();
+  // Weight towards less-practiced letters
+  const weighted = [];
+  pool.forEach(c => {
+    const s = state.letterStats[c] || { correct: 0, attempts: 0 };
+    const mastery = s.attempts > 0 ? s.correct / s.attempts : 0;
+    const weight = Math.max(1, Math.round((1 - mastery) * 5) + (s.attempts < 3 ? 3 : 0));
+    for (let i = 0; i < weight; i++) weighted.push(c);
+  });
+  let ch;
+  do { ch = weighted[Math.floor(Math.random() * weighted.length)]; } while (ch === currentChar && weighted.length > 1);
+  currentChar = ch;
+  inputMorse = '';
+  updateDisplay();
+}
+
+function updateDisplay() {
+  document.getElementById('challengeChar').textContent = currentChar;
+  document.getElementById('morseHint').textContent = state.showHints ? toDisplay(MORSE[currentChar]) : '';
+  document.getElementById('morseHint').style.opacity = state.showHints ? '1' : '0.3';
+  document.getElementById('inputDisplay').textContent = toDisplay(inputMorse);
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+}
+
+function addSymbol(sym) {
+  if (inputMorse.length >= 6) return;
+  inputMorse += sym;
+  document.getElementById('inputDisplay').textContent = toDisplay(inputMorse);
+
+  // Auto-submit after pause
+  clearTimeout(submitTimeout);
+  submitTimeout = setTimeout(() => submitAnswer(), 1200);
+}
+
+function submitAnswer() {
+  clearTimeout(submitTimeout);
+  if (!inputMorse) return;
+
+  const correct = MORSE[currentChar];
+  const fb = document.getElementById('feedback');
+  const area = document.getElementById('challengeArea');
+
+  if (!state.letterStats[currentChar]) state.letterStats[currentChar] = { correct: 0, attempts: 0 };
+  state.letterStats[currentChar].attempts++;
+
+  if (inputMorse === correct) {
+    state.letterStats[currentChar].correct++;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+    const streakBonus = Math.min(state.streak, 10);
+    const points = 10 + streakBonus * 2 + (!state.showHints ? 5 : 0);
+    state.score += points;
+    state.xp += points;
+
+    fb.textContent = `✓ Correct! +${points} pts`;
+    fb.className = 'feedback correct';
+    area.classList.remove('flash-correct');
+    void area.offsetWidth;
+    area.classList.add('flash-correct');
+
+    document.getElementById('streakDisplay').textContent =
+      state.streak > 1 ? `🔥 ${state.streak} streak!` : '';
+
+    playBeep(880, 0.15);
+    setTimeout(() => playBeep(1100, 0.15), 120);
+
+    setTimeout(pickChallenge, 800);
+  } else {
+    state.streak = 0;
+    fb.textContent = `✗ That was ${toDisplay(correct)}`;
+    fb.className = 'feedback wrong';
+    area.classList.remove('shake-wrong');
+    void area.offsetWidth;
+    area.classList.add('shake-wrong');
+
+    document.getElementById('streakDisplay').textContent = '';
+    playBeep(220, 0.3);
+
+    setTimeout(pickChallenge, 1500);
+  }
+
+  updateStats();
+  saveState();
+}
+
+function updateStats() {
+  const rank = getRank();
+  const nextRank = getNextRank();
+  document.getElementById('level').textContent = RANKS.indexOf(rank) + 1;
+  document.getElementById('streakStat').textContent = state.streak;
+  document.getElementById('scoreStat').textContent = state.score;
+
+  const progress = nextRank
+    ? ((state.xp - rank.xp) / (nextRank.xp - rank.xp)) * 100
+    : 100;
+  document.getElementById('xpFill').style.width = Math.min(100, progress) + '%';
+}
+
+function getRank() {
+  let rank = RANKS[0];
+  for (const r of RANKS) {
+    if (state.xp >= r.xp) rank = r;
+  }
+  return rank;
+}
+
+function getNextRank() {
+  const current = getRank();
+  const idx = RANKS.indexOf(current);
+  return idx < RANKS.length - 1 ? RANKS[idx + 1] : null;
+}
+
+// ─── TELEGRAPH KEY INPUT ───
+const key = document.getElementById('telegraphKey');
+const dot = document.getElementById('soundDot');
+const DOT_THRESHOLD = 200; // ms
+
+function keyStart(e) {
+  e.preventDefault();
+  if (isKeyDown) return;
+  unlockAudio();
+  isKeyDown = true;
+  keyDownTime = Date.now();
+  key.classList.add('pressed');
+  dot.classList.add('on');
+  clearTimeout(submitTimeout);
+  startTone(650);
+}
+
+function keyEnd(e) {
+  e.preventDefault();
+  if (!isKeyDown) return;
+  isKeyDown = false;
+  key.classList.remove('pressed');
+  dot.classList.remove('on');
+  stopTone();
+  const dur = Date.now() - keyDownTime;
+  addSymbol(dur < DOT_THRESHOLD ? '.' : '-');
+}
+
+key.addEventListener('touchstart', keyStart, { passive: false });
+key.addEventListener('touchend', keyEnd, { passive: false });
+key.addEventListener('mousedown', keyStart);
+key.addEventListener('mouseup', keyEnd);
+key.addEventListener('mouseleave', (e) => { if (isKeyDown) keyEnd(e); });
+
+document.getElementById('btnSkip').addEventListener('click', () => {
+  clearTimeout(submitTimeout);
+  const fb = document.getElementById('feedback');
+  fb.textContent = `Skipped — it was ${toDisplay(MORSE[currentChar])}`;
+  fb.className = 'feedback wrong';
+  state.streak = 0;
+  document.getElementById('streakDisplay').textContent = '';
+  updateStats();
+  setTimeout(pickChallenge, 1000);
+});
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  clearTimeout(submitTimeout);
+  inputMorse = '';
+  document.getElementById('inputDisplay').textContent = '';
+});
+
+document.getElementById('btnSubmit').addEventListener('click', () => submitAnswer());
+
+// ─── TABS ───
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'tree') renderTree();
+    if (tab.dataset.tab === 'progress') renderProgress();
+  });
+});
+
+// ─── DECODING TREE (SVG) ───
+function buildTree() {
+  const root = { char: 'START', children: {} };
+  for (const [char, code] of Object.entries(MORSE)) {
+    let node = root;
+    for (const sym of code) {
+      if (!node.children[sym]) node.children[sym] = { char: '', children: {} };
+      node = node.children[sym];
+    }
+    node.char = char;
+  }
+  return root;
+}
+
+function renderTree() {
+  const container = document.getElementById('treeContainer');
+  const tree = buildTree();
+
+  // Calculate tree dimensions
+  const levelHeight = 52;
+  const levels = 5;
+  const svgW = 720;
+  const svgH = levels * levelHeight + 40;
+
+  let svg = `<svg class="tree-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<style>
+    .tree-node { fill: #f4e8c1; stroke: #2c1810; stroke-width: 1.5; }
+    .tree-node-filled { fill: #e8dcc0; stroke: #2c1810; stroke-width: 1.5; }
+    .tree-text { font-family: 'Playfair Display', serif; font-size: 12px; font-weight: 700; fill: #2c1810; text-anchor: middle; dominant-baseline: central; }
+    .tree-label { font-family: 'Special Elite', monospace; font-size: 8px; fill: #8b6914; text-anchor: middle; }
+    .tree-line { stroke: #5c3a2a; stroke-width: 1; }
+    .tree-dot-line { stroke: #2a4a2a; stroke-width: 1.5; }
+    .tree-dash-line { stroke: #8b2500; stroke-width: 1.5; }
+  </style>`;
+
+  function drawNode(node, x, y, spread, depth) {
+    if (depth > 4) return;
+
+    const r = node.char ? 14 : 8;
+    const cls = node.char ? 'tree-node-filled' : 'tree-node';
+
+    if (node.children['.']) {
+      const cx = x - spread, cy = y + levelHeight;
+      svg += `<line x1="${x}" y1="${y + r}" x2="${cx}" y2="${cy - r}" class="tree-dot-line"/>`;
+      svg += `<text x="${(x + cx)/2 - 8}" y="${(y + cy)/2}" class="tree-label">·</text>`;
+      drawNode(node.children['.'], cx, cy, spread / 2, depth + 1);
+    }
+    if (node.children['-']) {
+      const cx = x + spread, cy = y + levelHeight;
+      svg += `<line x1="${x}" y1="${y + r}" x2="${cx}" y2="${cy - r}" class="tree-dash-line"/>`;
+      svg += `<text x="${(x + cx)/2 + 8}" y="${(y + cy)/2}" class="tree-label">━</text>`;
+      drawNode(node.children['-'], cx, cy, spread / 2, depth + 1);
+    }
+
+    svg += `<circle cx="${x}" cy="${y}" r="${r}" class="${cls}"/>`;
+    if (node.char) {
+      svg += `<text x="${x}" y="${y}" class="tree-text">${node.char === 'START' ? '⚡' : node.char}</text>`;
+    }
+  }
+
+  drawNode(tree, svgW / 2, 24, svgW / 4.5, 0);
+  svg += '</svg>';
+  container.innerHTML = svg;
+}
+
+// ─── PROGRESS PANEL ───
+function renderProgress() {
+  const rank = getRank();
+  const nextRank = getNextRank();
+  const allChars = Object.keys(MORSE);
+
+  let html = `
+    <h2>Operator's Record</h2>
+    <div class="rank-display">
+      <div class="rank-icon">${rank.icon}</div>
+      <div class="rank-title">${rank.name}</div>
+      <div class="rank-desc">${rank.desc}</div>
+      <div style="margin-top:6px;font-size:11px;color:var(--brass-dark)">
+        ${state.xp} XP ${nextRank ? `• ${nextRank.xp - state.xp} XP to ${nextRank.name}` : '• MAX RANK'}
+      </div>
+      <div style="font-size:11px;color:var(--ink-light);margin-top:4px">
+        Best Streak: 🔥 ${state.bestStreak}
+      </div>
+    </div>
+
+    <div class="difficulty-btns">
+      <button class="diff-btn ${state.difficulty==='letters'?'active':''}" data-diff="letters">Letters</button>
+      <button class="diff-btn ${state.difficulty==='numbers'?'active':''}" data-diff="numbers">Numbers</button>
+      <button class="diff-btn ${state.difficulty==='mixed'?'active':''}" data-diff="mixed">Mixed</button>
+    </div>
+
+    <div class="settings-row">
+      <label>Show Morse Hint</label>
+      <button class="toggle ${state.showHints ? 'on' : ''}" id="toggleHint"></button>
+    </div>
+
+    <div class="mastery-label">Character Mastery</div>
+    <div class="letter-grid">`;
+
+  allChars.forEach(c => {
+    const s = state.letterStats[c] || { correct: 0, attempts: 0 };
+    const pct = s.attempts > 0 ? s.correct / s.attempts : 0;
+    const cls = s.attempts === 0 ? 'locked' : pct >= 0.8 ? 'mastered' : 'learning';
+    html += `<div class="letter-cell ${cls}">
+      ${c}<span class="lc-morse">${toDisplay(MORSE[c])}</span>
+    </div>`;
+  });
+
+  html += '</div>';
+  document.getElementById('progressContent').innerHTML = html;
+
+  // Event listeners
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.difficulty = btn.dataset.diff;
+      saveState();
+      renderProgress();
+      pickChallenge();
+    });
+  });
+
+  document.getElementById('toggleHint')?.addEventListener('click', function() {
+    state.showHints = !state.showHints;
+    this.classList.toggle('on');
+    document.getElementById('morseHint').style.opacity = state.showHints ? '1' : '0.3';
+    document.getElementById('morseHint').textContent = state.showHints ? toDisplay(MORSE[currentChar]) : '(hidden)';
+    saveState();
+  });
+}
+
+// ─── KEYBOARD SUPPORT ───
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && !isKeyDown) {
+    e.preventDefault();
+    unlockAudio();
+    isKeyDown = true;
+    keyDownTime = Date.now();
+    key.classList.add('pressed');
+    dot.classList.add('on');
+    clearTimeout(submitTimeout);
+    startTone(650);
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  if (e.code === 'Space' && isKeyDown) {
+    e.preventDefault();
+    isKeyDown = false;
+    key.classList.remove('pressed');
+    dot.classList.remove('on');
+    stopTone();
+    const dur = Date.now() - keyDownTime;
+    addSymbol(dur < DOT_THRESHOLD ? '.' : '-');
+  }
+  if (e.code === 'Enter') submitAnswer();
+  if (e.code === 'Escape') {
+    clearTimeout(submitTimeout);
+    inputMorse = '';
+    document.getElementById('inputDisplay').textContent = '';
+  }
+});
+
+// ─── INIT ───
+updateStats();
+pickChallenge();
+</script>
+</body>
+</html>
