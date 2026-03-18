@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <title>Pendulum Simulator</title>
+    <style>
+      .pendulum {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        transform-origin: top center;
+      }
+      .pendulum-marker {
+        width: 10px;
+        height: 10px;
+        background: green;
+        position: absolute;
+        bottom: 50%;
+        left: 50%;
+        transform-origin: top center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="pendulum" id="pendulum">
+        <div class="pendulum-marker"></div>
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var pendulum = document.getElementById('pendulum');
+        var angle = 0;
+        
+        function swingPendulum() {
+          pendulum.style.transform= 'rotate(' + (angle) + 'deg)';
+          angle = (angle + 1) % 360;
+          
+          requestAnimationFrame(swingPendulum);
+        }
+        
+        swingPendulum();
+      });
+    </script>
+  </body>
+</html>

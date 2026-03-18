@@ -1,45 +1,160 @@
-<html>
-  <head>
-    <title>Pendulum Simulator</title>
-    <style>
-      .pendulum {
-        position: relative;
-        width: 300px;
-        height: 300px;
-        transform-origin: top center;
-      }
-      .pendulum-marker {
-        width: 10px;
-        height: 10px;
-        background: green;
-        position: absolute;
-        bottom: 50%;
-        left: 50%;
-        transform-origin: top center;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="app">
-      <div class="pendulum" id="pendulum">
-        <div class="pendulum-marker"></div>
-      </div>
-    </div>
-    
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        var pendulum = document.getElementById('pendulum');
-        var angle = 0;
-        
-        function swingPendulum() {
-          pendulum.style.transform= 'rotate(' + (angle) + 'deg)';
-          angle = (angle + 1) % 360;
-          
-          requestAnimationFrame(swingPendulum);
-        }
-        
-        swingPendulum();
-      });
-    </script>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Demos &amp; Labs</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f0f1a;
+  color: #e0e0e8;
+  min-height: 100vh;
+  padding: 40px 24px;
+}
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 8px;
+  color: #fff;
+}
+.subtitle {
+  text-align: center;
+  color: #888;
+  margin-bottom: 48px;
+  font-size: 0.95rem;
+}
+.section {
+  max-width: 900px;
+  margin: 0 auto 48px;
+}
+.section h2 {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #7c5cff;
+  border-bottom: 1px solid rgba(124,92,255,0.3);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+a.card {
+  display: block;
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 16px 20px;
+  text-decoration: none;
+  color: #e0e0e8;
+  transition: background 0.2s, border-color 0.2s;
+}
+a.card:hover {
+  background: #222240;
+  border-color: rgba(124,92,255,0.4);
+}
+a.card .title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+a.card .desc {
+  font-size: 0.85rem;
+  color: #888;
+}
+</style>
+</head>
+<body>
+
+<h1>Web Demos &amp; Labs</h1>
+<p class="subtitle">Interactive tools, simulations, and educational labs</p>
+
+<div class="section">
+  <h2>Tools</h2>
+  <div class="grid">
+    <a class="card" href="morse.html">
+      <div class="title">Morse Code Academy</div>
+      <div class="desc">Learn Morse code with a steampunk-themed telegraph interface</div>
+    </a>
+    <a class="card" href="qr.html">
+      <div class="title">QR Code Generator</div>
+      <div class="desc">Generate QR codes from custom text input</div>
+    </a>
+    <a class="card" href="demos/steg.html">
+      <div class="title">PureCipher Steganography</div>
+      <div class="desc">Hide and reveal data within images</div>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Demos</h2>
+  <div class="grid">
+    <a class="card" href="demos.html">
+      <div class="title">Lucky Hour — Scratch &amp; Reveal</div>
+      <div class="desc">18 interactive scratch-and-reveal game concepts</div>
+    </a>
+    <a class="card" href="demos/pendulum.html">
+      <div class="title">Pendulum Simulator</div>
+      <div class="desc">Physics simulation of pendulum motion</div>
+    </a>
+    <a class="card" href="demos/menace1.html">
+      <div class="title">MENACE Brain Simulator</div>
+      <div class="desc">Matchbox-based machine learning for tic-tac-toe</div>
+    </a>
+    <a class="card" href="demos/N1.html">
+      <div class="title">Emoji Image Voting</div>
+      <div class="desc">Vote on images using emoji selections</div>
+    </a>
+    <a class="card" href="demos/N2.html">
+      <div class="title">Image Voting Tournament</div>
+      <div class="desc">Tournament-style image competition</div>
+    </a>
+    <a class="card" href="demos/N3.html">
+      <div class="title">Buenos Aires Tournament</div>
+      <div class="desc">Image tournament featuring Buenos Aires</div>
+    </a>
+    <a class="card" href="demos/N4.html">
+      <div class="title">Poster Tournament</div>
+      <div class="desc">Vote and rank poster designs</div>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Fitness</h2>
+  <div class="grid">
+    <a class="card" href="demos/workout.html">
+      <div class="title">HIT Workout Tracker</div>
+      <div class="desc">Arthur Jones style high-intensity training tracker</div>
+    </a>
+    <a class="card" href="demos/hit-workout-tracker2.html">
+      <div class="title">HIT Workout Tracker v2</div>
+      <div class="desc">Updated workout tracker with futuristic UI</div>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Labs</h2>
+  <div class="grid">
+    <a class="card" href="labs/logic-gate-lab.html">
+      <div class="title">Logic Gate Lab</div>
+      <div class="desc">Learn and experiment with digital logic gates</div>
+    </a>
+    <a class="card" href="labs/arithmetic-logic-lab.html">
+      <div class="title">Arithmetic Logic Lab</div>
+      <div class="desc">Explore arithmetic and logical operations</div>
+    </a>
+    <a class="card" href="labs/advanced-logic-lab2.html">
+      <div class="title">Advanced Logic Lab</div>
+      <div class="desc">Complex logic circuits and advanced digital concepts</div>
+    </a>
+  </div>
+</div>
+
+</body>
 </html>
