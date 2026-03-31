@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binary Builder</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121933;
+      --text: #eef2ff;
+      --muted: #aab4d6;
+      --line: rgba(255,255,255,0.08);
+      --zero: #60a5fa;
+      --one: #f472b6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg, #0a1020, #111936);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      margin: 0 0 10px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"], input[type="number"], button, input[type="color"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    input[type="color"] {
+      height: 46px;
+      padding: 4px;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      font-size: 1rem;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .step-note {
+      font-size: 1.05rem;
+      color: var(--text);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .binary-line {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 1.8rem;
+      letter-spacing: 0.12em;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .bit0 { color: var(--zero); font-weight: 800; }
+    .bit1 { color: var(--one); font-weight: 800; }
+
+    .mapping {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .mapping-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .mapping-title {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .label-line {
+      font-size: 1.25rem;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 850px) {
+      .controls, .two-col, .mapping {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Build Binary by Doubling the List</h1>
+      <p>Start with one empty item. Duplicate the whole list. Put 0 in front of the first half and 1 in front of the second half. Repeat.</p>
+
+      <div class="controls" style="margin-top: 18px;">
+        <div>
+          <label for="zeroLabel">Label for 0</label>
+          <input id="zeroLabel" type="text" value="Blue" />
+        </div>
+        <div>
+          <label for="oneLabel">Label for 1</label>
+          <input id="oneLabel" type="text" value="Rose" />
+        </div>
+        <div>
+          <label for="zeroColor">Color for 0</label>
+          <input id="zeroColor" type="color" value="#60a5fa" />
+        </div>
+        <div>
+          <label for="oneColor">Color for 1</label>
+          <input id="oneColor" type="color" value="#f472b6" />
+        </div>
+      </div>
+
+      <div class="controls" style="margin-top: 14px; grid-template-columns: 180px 1fr;">
+        <div>
+          <label for="bits">Number of bits</label>
+          <input id="bits" type="number" min="1" max="10" value="5" />
+        </div>
+        <div class="buttons" style="margin-top: 28px;">
+          <button id="resetBtn">Reset</button>
+          <button id="nextBtn">Next step</button>
+          <button id="fullBtn">Build full list</button>
+        </div>
+      </div>
+
+      <div class="legend">
+        <div><span class="dot" id="zeroDot"></span><span id="zeroLegend">Blue = 0</span></div>
+        <div><span class="dot" id="oneDot"></span><span id="oneLegend">Rose = 1</span></div>
+      </div>
+
+      <div class="step-note" id="stepNote"></div>
+    </div>
+
+    <div class="card">
+      <h2>Labels first</h2>
+      <p>The labels come first. Then you reveal that they were standing for 0 and 1 the whole time.</p>
+      <div class="mapping">
+        <div class="mapping-box">
+          <div class="mapping-title">With labels</div>
+          <div id="labelList" class="list"></div>
+        </div>
+        <div class="mapping-box">
+          <div class="mapping-title">As binary numbers</div>
+          <div id="numberList" class="list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>One construction step</h2>
+      <div class="two-col">
+        <div>
+          <p>Before</p>
+          <div id="beforeList" class="list"></div>
+        </div>
+        <div>
+          <p>After adding 0 to the first half and 1 to the second half</p>
+          <div id="afterList" class="list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = { step: 0 };
+
+    const els = {
+      zeroLabel: document.getElementById('zeroLabel'),
+      oneLabel: document.getElementById('oneLabel'),
+      zeroColor: document.getElementById('zeroColor'),
+      oneColor: document.getElementById('oneColor'),
+      bits: document.getElementById('bits'),
+      resetBtn: document.getElementById('resetBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      fullBtn: document.getElementById('fullBtn'),
+      zeroDot: document.getElementById('zeroDot'),
+      oneDot: document.getElementById('oneDot'),
+      zeroLegend: document.getElementById('zeroLegend'),
+      oneLegend: document.getElementById('oneLegend'),
+      stepNote: document.getElementById('stepNote'),
+      labelList: document.getElementById('labelList'),
+      numberList: document.getElementById('numberList'),
+      beforeList: document.getElementById('beforeList'),
+      afterList: document.getElementById('afterList')
+    };
+
+    function config() {
+      return {
+        zeroLabel: (els.zeroLabel.value || 'Zero').trim(),
+        oneLabel: (els.oneLabel.value || 'One').trim(),
+        zeroColor: els.zeroColor.value,
+        oneColor: els.oneColor.value,
+        bits: Math.max(1, Math.min(10, parseInt(els.bits.value, 10) || 5))
+      };
+    }
+
+    function build(step) {
+      let list = [''];
+      let prev = [''];
+      for (let i = 1; i <= step; i++) {
+        prev = [...list];
+        list = [...prev.map(x => '0' + x), ...prev.map(x => '1' + x)];
+      }
+      return { prev, list };
+    }
+
+    function bitSpan(ch) {
+      return `<span class="${ch === '0' ? 'bit0' : 'bit1'}">${ch}</span>`;
+    }
+
+    function coloredBinary(binary) {
+      if (binary === '') return '<span style="color: var(--muted)">(empty start)</span>';
+      return binary.split('').map(bitSpan).join('');
+    }
+
+    function labelText(binary, cfg) {
+      if (binary === '') return '<span style="color: var(--muted)">(empty start)</span>';
+      return binary.split('').map(ch => ch === '0' ? `<span class="bit0">${cfg.zeroLabel}</span>` : `<span class="bit1">${cfg.oneLabel}</span>`).join(' ');
+    }
+
+    function renderLines(container, items, renderer) {
+      container.innerHTML = items.map(item => `<div class="binary-line">${renderer(item)}</div>`).join('');
+    }
+
+    function render() {
+      const cfg = config();
+      state.step = Math.min(state.step, cfg.bits);
+
+      document.documentElement.style.setProperty('--zero', cfg.zeroColor);
+      document.documentElement.style.setProperty('--one', cfg.oneColor);
+
+      els.zeroDot.style.background = cfg.zeroColor;
+      els.oneDot.style.background = cfg.oneColor;
+      els.zeroLegend.textContent = `${cfg.zeroLabel} = 0`;
+      els.oneLegend.textContent = `${cfg.oneLabel} = 1`;
+
+      const { prev, list } = build(state.step);
+
+      if (state.step === 0) {
+        els.stepNote.textContent = 'Start with one empty item. There are no bits yet.';
+      } else {
+        els.stepNote.textContent = `Step ${state.step}: take the ${prev.length} items you already had, duplicate the list, put 0 in front of the first ${prev.length}, and put 1 in front of the second ${prev.length}. Now you have ${list.length} binary strings.`;
+      }
+
+      renderLines(els.labelList, list, item => labelText(item, cfg));
+      renderLines(els.numberList, list, item => coloredBinary(item));
+      renderLines(els.beforeList, prev, item => coloredBinary(item));
+      renderLines(els.afterList, list, item => coloredBinary(item));
+    }
+
+    els.resetBtn.addEventListener('click', () => {
+      state.step = 0;
+      render();
+    });
+
+    els.nextBtn.addEventListener('click', () => {
+      state.step = Math.min(config().bits, state.step + 1);
+      render();
+    });
+
+    els.fullBtn.addEventListener('click', () => {
+      state.step = config().bits;
+      render();
+    });
+
+    [els.zeroLabel, els.oneLabel, els.zeroColor, els.oneColor, els.bits].forEach(el => {
+      el.addEventListener('input', render);
+    });
+
+    render();
+  </script>
+</body>
+</html>
