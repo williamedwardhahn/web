@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>99 Knights in the Forest — Spelling Adventure</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Nunito:wght@400;700;900&display=swap');
@@ -13,8 +13,12 @@ body {
   font-family: 'Nunito', sans-serif;
   overflow: hidden;
   height: 100vh;
+  height: 100dvh;
   background: #1a2e1a;
   user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 canvas {
@@ -25,6 +29,7 @@ canvas {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
 }
 
 #ui-layer {
@@ -48,39 +53,50 @@ canvas {
   justify-content: center;
   background: linear-gradient(180deg, #0d1f0d 0%, #1a3a1a 40%, #2d5a2d 100%);
   z-index: 100;
+  padding: 1rem;
+  overflow-y: auto;
 }
 
 #title-screen h1 {
   font-family: 'MedievalSharp', cursive;
-  font-size: 4rem;
+  font-size: clamp(2rem, 8vw, 4rem);
   color: #f0d060;
   text-shadow: 0 0 20px rgba(240, 208, 96, 0.5), 2px 2px 0 #5a3a00;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
+  text-align: center;
 }
 
 #title-screen .subtitle {
-  font-size: 1.4rem;
+  font-size: clamp(1rem, 3.5vw, 1.4rem);
   color: #a0c8a0;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.choose-text {
+  color: #8ab88a;
+  margin-bottom: 1rem;
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
 }
 
 .character-select {
   display: flex;
-  gap: 2rem;
-  margin-bottom: 2rem;
+  gap: clamp(0.6rem, 2vw, 2rem);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .char-option {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem;
+  padding: clamp(0.8rem, 2vw, 1.5rem);
   border: 3px solid #4a6a4a;
   border-radius: 16px;
   background: rgba(30, 60, 30, 0.8);
   cursor: pointer;
   transition: all 0.3s;
-  min-width: 140px;
+  min-width: clamp(90px, 22vw, 140px);
 }
 
 .char-option:hover {
@@ -96,26 +112,26 @@ canvas {
 }
 
 .char-option .emoji {
-  font-size: 3.5rem;
-  margin-bottom: 0.5rem;
+  font-size: clamp(2.2rem, 7vw, 3.5rem);
+  margin-bottom: 0.3rem;
 }
 
 .char-option .name {
   font-family: 'MedievalSharp', cursive;
-  font-size: 1.3rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.3rem);
   color: #e0d0a0;
 }
 
 .char-option .desc {
-  font-size: 0.8rem;
+  font-size: clamp(0.65rem, 1.8vw, 0.8rem);
   color: #8ab88a;
   margin-top: 4px;
 }
 
 #start-btn {
   font-family: 'MedievalSharp', cursive;
-  font-size: 1.8rem;
-  padding: 0.8rem 3rem;
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  padding: 0.7rem 2.5rem;
   background: linear-gradient(180deg, #c8a030, #a07820);
   color: #fff;
   border: 3px solid #e0c050;
@@ -137,42 +153,44 @@ canvas {
   display: none;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
+  padding: 8px 12px;
   background: linear-gradient(180deg, rgba(10,20,10,0.9), rgba(10,20,10,0));
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 #hud .score-area {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
 }
 
 #hud .score {
   font-family: 'MedievalSharp', cursive;
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 3.5vw, 1.5rem);
   color: #f0d060;
 }
 
 #hud .streak {
-  font-size: 1rem;
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
   color: #ff9944;
 }
 
 #hud .level {
   font-family: 'MedievalSharp', cursive;
-  font-size: 1.2rem;
+  font-size: clamp(0.9rem, 3vw, 1.2rem);
   color: #a0d0a0;
 }
 
 #hearts {
-  font-size: 1.5rem;
-  letter-spacing: 4px;
+  font-size: clamp(1rem, 3.5vw, 1.5rem);
+  letter-spacing: 2px;
 }
 
 /* Spelling Challenge */
 #challenge-box {
   position: absolute;
-  bottom: 80px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   display: none;
@@ -181,41 +199,45 @@ canvas {
   background: rgba(15, 30, 15, 0.95);
   border: 3px solid #4a7a4a;
   border-radius: 20px;
-  padding: 1.5rem 2.5rem;
-  min-width: 400px;
+  padding: clamp(0.8rem, 2vw, 1.5rem) clamp(1rem, 3vw, 2.5rem);
+  width: calc(100% - 16px);
+  max-width: 500px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
 #challenge-box .encounter-text {
   font-family: 'MedievalSharp', cursive;
-  font-size: 1.2rem;
+  font-size: clamp(0.9rem, 3vw, 1.2rem);
   color: #c0e0c0;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
+  text-align: center;
 }
 
 #challenge-box .word-hint {
-  font-size: 1rem;
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
   color: #90b890;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   text-align: center;
   max-width: 350px;
 }
 
 #letter-display {
   display: flex;
-  gap: 8px;
-  margin-bottom: 1rem;
+  gap: clamp(4px, 1.2vw, 8px);
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 #letter-display .letter-slot {
-  width: 44px;
-  height: 52px;
+  width: clamp(32px, 8vw, 44px);
+  height: clamp(38px, 9vw, 52px);
   border: 2px solid #5a8a5a;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
+  font-size: clamp(1.1rem, 3.5vw, 1.6rem);
   font-weight: 900;
   color: #f0e8c0;
   background: rgba(40, 70, 40, 0.6);
@@ -254,29 +276,32 @@ canvas {
 #keyboard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: clamp(3px, 1vw, 6px);
   align-items: center;
+  width: 100%;
 }
 
 #keyboard .row {
   display: flex;
-  gap: 5px;
+  gap: clamp(3px, 0.8vw, 5px);
+  justify-content: center;
 }
 
 #keyboard .key {
-  width: 38px;
-  height: 42px;
+  width: clamp(28px, 7.5vw, 38px);
+  height: clamp(34px, 9vw, 42px);
   border: 2px solid #4a7a4a;
   border-radius: 6px;
   background: rgba(30, 60, 30, 0.9);
   color: #c0e0c0;
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 2.8vw, 1.1rem);
   font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #keyboard .key:hover {
@@ -286,6 +311,7 @@ canvas {
 
 #keyboard .key:active {
   transform: scale(0.9);
+  background: rgba(80, 130, 60, 0.9);
 }
 
 /* Result popup */
@@ -297,7 +323,7 @@ canvas {
   display: none;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 3rem;
+  padding: clamp(1.2rem, 4vw, 2rem) clamp(1.5rem, 5vw, 3rem);
   border-radius: 20px;
   z-index: 50;
   animation: fadeInUp 0.4s;
@@ -318,14 +344,14 @@ canvas {
   border: 3px solid #c06060;
 }
 
-#result-popup .result-icon { font-size: 3rem; }
+#result-popup .result-icon { font-size: clamp(2rem, 7vw, 3rem); }
 #result-popup .result-text {
   font-family: 'MedievalSharp', cursive;
-  font-size: 1.6rem;
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
   margin: 0.5rem 0;
 }
 #result-popup .result-word {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 3vw, 1.2rem);
   letter-spacing: 3px;
   font-weight: 900;
 }
@@ -341,30 +367,34 @@ canvas {
   justify-content: center;
   background: rgba(5, 10, 5, 0.95);
   z-index: 100;
+  padding: 1.5rem;
 }
 
 #game-over h2 {
   font-family: 'MedievalSharp', cursive;
-  font-size: 3rem;
+  font-size: clamp(2rem, 8vw, 3rem);
   color: #f0d060;
   margin-bottom: 1rem;
 }
 
 #game-over .final-score {
-  font-size: 1.5rem;
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
   color: #c0e0c0;
   margin-bottom: 0.5rem;
 }
 
 #game-over .words-learned {
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem);
   color: #8ab88a;
   margin-bottom: 2rem;
+  text-align: center;
+  max-width: 90%;
+  word-wrap: break-word;
 }
 
 #play-again-btn {
   font-family: 'MedievalSharp', cursive;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 4vw, 1.5rem);
   padding: 0.7rem 2.5rem;
   background: linear-gradient(180deg, #c8a030, #a07820);
   color: #fff;
@@ -389,6 +419,19 @@ canvas {
   text-shadow: 0 0 8px rgba(0,0,0,0.8);
   pointer-events: none;
 }
+
+/* Mobile move hint */
+#move-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'MedievalSharp', cursive;
+  font-size: clamp(0.9rem, 3vw, 1.1rem);
+  color: rgba(160, 200, 160, 0.6);
+  pointer-events: none;
+  transition: opacity 1s;
+}
 </style>
 </head>
 <body>
@@ -399,7 +442,7 @@ canvas {
     <div id="title-screen">
       <h1>99 Knights in the Forest</h1>
       <p class="subtitle">A Spelling Adventure</p>
-      <p style="color:#8ab88a; margin-bottom:1.5rem;">Choose your knight companion:</p>
+      <p class="choose-text">Choose your knight companion:</p>
       <div class="character-select">
         <div class="char-option selected" data-char="deer">
           <div class="emoji">&#x1F98C;</div>
@@ -454,6 +497,7 @@ canvas {
     </div>
 
     <div id="creature-label"></div>
+    <div id="move-hint"></div>
   </div>
 </div>
 
@@ -554,6 +598,9 @@ const state = {
   time: 0,
   cameraX: 0,
   cameraY: 0,
+  isTouching: false,
+  touchX: 0,
+  touchY: 0,
 };
 
 // ============ CANVAS SETUP ============
@@ -566,6 +613,7 @@ function resize() {
   H = canvas.height = window.innerHeight;
 }
 window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 100));
 resize();
 
 // ============ FOREST GENERATION ============
@@ -607,7 +655,7 @@ function generateForest() {
 
 function spawnCreatures() {
   state.creatures = [];
-  const types = ['deer', 'ram', 'cat', 'owl', 'fox'];
+  const types = ['deer', 'ram', 'cat', 'bat', 'owl', 'fox'];
   for (let i = 0; i < 6; i++) {
     const angle = Math.random() * Math.PI * 2;
     const dist = 200 + Math.random() * 400;
@@ -632,6 +680,7 @@ function getCreatureEmoji(type) {
     case 'deer': return '🦌';
     case 'ram': return '🐏';
     case 'cat': return '🐈';
+    case 'bat': return '🦇';
     case 'owl': return '🦉';
     case 'fox': return '🦊';
     default: return '🐾';
@@ -658,7 +707,6 @@ function pickWord() {
   const set = wordSets[diff];
   const available = set.filter(w => !state.wordList.includes(w.word));
   if (available.length === 0) {
-    // Reset used words for this difficulty
     state.wordList = state.wordList.filter(w => !set.find(s => s.word === w));
     return set[Math.floor(Math.random() * set.length)];
   }
@@ -667,14 +715,6 @@ function pickWord() {
 
 // ============ DRAWING ============
 function drawForest() {
-  // Sky gradient
-  const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
-  skyGrad.addColorStop(0, '#0a1a0a');
-  skyGrad.addColorStop(0.5, '#152815');
-  skyGrad.addColorStop(1, '#1a3a1a');
-  ctx.fillStyle = skyGrad;
-  ctx.fillRect(0, 0, W, H);
-
   // Ground
   ctx.fillStyle = '#1a3318';
   ctx.fillRect(0, 0, W, H);
@@ -747,9 +787,16 @@ function drawForest() {
     const sx = c.x - cx + W/2;
     const sy = c.y - cy + H/2;
     if (sx < -50 || sx > W+50 || sy < -50 || sy > H+50) return;
+
+    // Bat has a flying bob effect
+    let drawY = sy;
+    if (c.type === 'bat') {
+      drawY += Math.sin(state.time * 4 + c.wanderTimer) * 8;
+    }
+
     ctx.font = '32px serif';
     ctx.textAlign = 'center';
-    ctx.fillText(c.emoji, sx, sy);
+    ctx.fillText(c.emoji, sx, drawY);
 
     // Glow if nearby player
     const dx = c.x - state.playerX;
@@ -759,7 +806,7 @@ function drawForest() {
       ctx.strokeStyle = 'rgba(240, 208, 96, 0.4)';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(sx, sy - 8, 24, 0, Math.PI * 2);
+      ctx.arc(sx, drawY - 8, 24, 0, Math.PI * 2);
       ctx.stroke();
     }
   });
@@ -774,7 +821,7 @@ function drawForest() {
   ctx.ellipse(px, py + 8, 16, 6, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Knight shield/armor indicator
+  // Knight
   ctx.font = '36px serif';
   ctx.textAlign = 'center';
   ctx.fillText(getCharEmoji(), px, py);
@@ -836,6 +883,12 @@ function update(dt) {
   state.time += dt;
 
   if (state.phase === 'roaming') {
+    // Continuous touch movement
+    if (state.isTouching) {
+      state.targetX = state.touchX - W/2 + state.cameraX;
+      state.targetY = state.touchY - H/2 + state.cameraY;
+    }
+
     // Move player toward target
     const dx = state.targetX - state.playerX;
     const dy = state.targetY - state.playerY;
@@ -858,12 +911,15 @@ function update(dt) {
         c.targetX = c.x + (Math.random() - 0.5) * 150;
         c.targetY = c.y + (Math.random() - 0.5) * 150;
       }
+
+      // Bats move faster and more erratically
+      const creatureSpeed = c.type === 'bat' ? 50 : 30;
       const cdx = c.targetX - c.x;
       const cdy = c.targetY - c.y;
       const cdist = Math.sqrt(cdx*cdx + cdy*cdy);
       if (cdist > 2) {
-        c.x += (cdx / cdist) * 30 * dt;
-        c.y += (cdy / cdist) * 30 * dt;
+        c.x += (cdx / cdist) * creatureSpeed * dt;
+        c.y += (cdy / cdist) * creatureSpeed * dt;
       }
 
       // Check proximity to player
@@ -894,6 +950,10 @@ function startChallenge(creature) {
   state.currentWord = pickWord();
   state.currentGuess = [];
   state.currentSlot = 0;
+  state.isTouching = false;
+
+  // Hide move hint during challenge
+  document.getElementById('move-hint').style.opacity = '0';
 
   const encounterTexts = [
     `A wild ${creature.type} blocks your path!`,
@@ -933,7 +993,16 @@ function buildKeyboard() {
       const key = document.createElement('div');
       key.className = 'key';
       key.textContent = letter;
-      key.addEventListener('click', () => handleLetterInput(letter));
+      key.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleLetterInput(letter);
+      });
+      key.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleLetterInput(letter);
+      });
       rowDiv.appendChild(key);
     }
     kb.appendChild(rowDiv);
@@ -954,7 +1023,6 @@ function handleLetterInput(letter) {
     state.currentSlot++;
 
     if (state.currentSlot >= state.currentWord.word.length) {
-      // Word complete!
       setTimeout(() => wordSuccess(), 400);
     }
   } else {
@@ -1015,7 +1083,7 @@ function getSuccessText() {
 }
 
 function spawnNewCreature() {
-  const types = ['deer', 'ram', 'cat', 'owl', 'fox'];
+  const types = ['deer', 'ram', 'cat', 'bat', 'owl', 'fox'];
   const angle = Math.random() * Math.PI * 2;
   const dist = 250 + Math.random() * 350;
   const c = {
@@ -1057,7 +1125,7 @@ function updateLevelText() {
   document.getElementById('level-text').textContent = names[diff];
 }
 
-// ============ INPUT ============
+// ============ INPUT — Mouse ============
 canvas.addEventListener('click', (e) => {
   if (state.phase === 'roaming') {
     state.targetX = e.clientX - W/2 + state.cameraX;
@@ -1065,6 +1133,50 @@ canvas.addEventListener('click', (e) => {
   }
 });
 
+// ============ INPUT — Touch (mobile) ============
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (state.phase === 'roaming') {
+    const t = e.touches[0];
+    state.isTouching = true;
+    state.touchX = t.clientX;
+    state.touchY = t.clientY;
+    state.targetX = t.clientX - W/2 + state.cameraX;
+    state.targetY = t.clientY - H/2 + state.cameraY;
+    // Hide hint after first touch
+    const hint = document.getElementById('move-hint');
+    if (hint.style.opacity !== '0') {
+      hint.style.opacity = '0';
+    }
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (state.phase === 'roaming' && state.isTouching) {
+    const t = e.touches[0];
+    state.touchX = t.clientX;
+    state.touchY = t.clientY;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  state.isTouching = false;
+}, { passive: false });
+
+canvas.addEventListener('touchcancel', (e) => {
+  state.isTouching = false;
+}, { passive: false });
+
+// Prevent default touch behaviors on the whole page to avoid scroll/zoom
+document.addEventListener('touchmove', (e) => {
+  if (state.phase !== 'title' && state.phase !== 'gameover') {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// ============ INPUT — Keyboard ============
 document.addEventListener('keydown', (e) => {
   if (state.phase === 'challenge') {
     const key = e.key.toUpperCase();
@@ -1102,6 +1214,7 @@ function startGame() {
   state.cameraX = 0;
   state.cameraY = 0;
   state.particles = [];
+  state.isTouching = false;
 
   generateForest();
   spawnCreatures();
@@ -1110,6 +1223,20 @@ function startGame() {
 
   document.getElementById('title-screen').style.display = 'none';
   document.getElementById('hud').style.display = 'flex';
+
+  // Show touch hint on mobile
+  const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const hint = document.getElementById('move-hint');
+  if (isMobile) {
+    hint.textContent = 'Tap & hold to move your knight';
+    hint.style.opacity = '1';
+    setTimeout(() => { hint.style.opacity = '0'; }, 4000);
+  } else {
+    hint.textContent = 'Click to move your knight';
+    hint.style.opacity = '1';
+    setTimeout(() => { hint.style.opacity = '0'; }, 3000);
+  }
+
   state.phase = 'roaming';
 }
 
