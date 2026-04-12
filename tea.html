@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>The Way of Tea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --cream: #F2EDE4;
+    --ink: #38342F;
+    --ink-light: #6B6459;
+    --sage: #7B9060;
+    --gold: #C0906A;
+    --mist: rgba(200, 195, 185, 0.3);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--cream);
+    font-family: 'EB Garamond', Georgia, serif;
+    color: var(--ink);
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: block;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
+    z-index: 10;
+    transition: opacity 1.2s ease;
+  }
+
+  .overlay.hidden { opacity: 0; pointer-events: none; }
+  .overlay.visible { opacity: 1; }
+
+  /* ---- Title Screen ---- */
+  #title-screen {
+    background: rgba(242, 237, 228, 0.15);
+    text-align: center;
+    pointer-events: auto;
+  }
+
+  .title-kanji {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(56px, 15vw, 100px);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    opacity: 0;
+    animation: gentleFadeUp 2s ease 0.3s forwards;
+  }
+
+  .title-main {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(28px, 7vw, 44px);
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--ink);
+    margin-top: 8px;
+    opacity: 0;
+    animation: gentleFadeUp 2s ease 0.8s forwards;
+  }
+
+  .title-sub {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(14px, 3.5vw, 18px);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink-light);
+    margin-top: 20px;
+    line-height: 1.7;
+    opacity: 0;
+    animation: gentleFadeUp 2s ease 1.4s forwards;
+  }
+
+  .title-tap {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(13px, 3vw, 16px);
+    letter-spacing: 0.2em;
+    color: var(--ink-light);
+    margin-top: 48px;
+    opacity: 0;
+    animation: gentleFadeUp 2s ease 2.2s forwards, breathe 3.5s ease-in-out 4s infinite;
+  }
+
+  /* ---- HUD ---- */
+  #hud {
+    justify-content: flex-start;
+    align-items: stretch;
+    padding-top: max(env(safe-area-inset-top, 16px), 16px);
+    transition: opacity 0.8s ease;
+  }
+
+  .hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 20px;
+    width: 100%;
+  }
+
+  .leaf-counter {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--ink);
+    background: rgba(242, 237, 228, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.3s ease;
+  }
+
+  .leaf-counter.pulse {
+    animation: counterPulse 0.5s ease;
+  }
+
+  .leaf-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+  }
+
+  .area-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--ink-light);
+    background: rgba(242, 237, 228, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 8px 14px;
+    border-radius: 16px;
+    transition: opacity 0.8s ease;
+  }
+
+  /* ---- Leaf Popup ---- */
+  #leaf-popup {
+    position: fixed;
+    bottom: max(env(safe-area-inset-bottom, 20px), 28px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+    background: rgba(242, 237, 228, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 8px 24px;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    z-index: 15;
+    pointer-events: none;
+  }
+
+  #leaf-popup.show { opacity: 1; }
+
+  /* ---- Brewing / Complete ---- */
+  #brewing-screen {
+    background: rgba(242, 237, 228, 0.0);
+    text-align: center;
+    transition: opacity 1.5s ease, background 2s ease;
+  }
+
+  #brewing-screen.bg-fill {
+    background: rgba(242, 237, 228, 0.85);
+  }
+
+  .brew-text {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(18px, 5vw, 26px);
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+    opacity: 0;
+    transition: opacity 1.5s ease;
+  }
+
+  .brew-text.show { opacity: 1; }
+
+  #complete-screen {
+    text-align: center;
+    transition: opacity 2s ease;
+  }
+
+  .quote-text {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(16px, 4.2vw, 22px);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.8;
+    color: var(--ink);
+    max-width: 320px;
+    opacity: 0;
+    animation: gentleFadeUp 2.5s ease 0.5s forwards;
+  }
+
+  .quote-author {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(13px, 3vw, 16px);
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    color: var(--ink-light);
+    margin-top: 20px;
+    opacity: 0;
+    animation: gentleFadeUp 2s ease 2s forwards;
+  }
+
+  .restart-tap {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(12px, 2.8vw, 15px);
+    letter-spacing: 0.2em;
+    color: var(--ink-light);
+    margin-top: 50px;
+    opacity: 0;
+    pointer-events: auto;
+    animation: gentleFadeUp 2s ease 3.5s forwards, breathe 3.5s ease-in-out 5.5s infinite;
+    cursor: pointer;
+  }
+
+  /* ---- Leaf progress bar ---- */
+  .leaf-progress {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(123, 144, 96, 0.15);
+    z-index: 12;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+  }
+
+  .leaf-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sage), var(--gold));
+    width: 0%;
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ---- Animations ---- */
+  @keyframes gentleFadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes breathe {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes counterPulse {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes ripple {
+    0% { transform: scale(0); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+
+  .tap-ripple {
+    position: fixed;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 1.5px solid var(--sage);
+    pointer-events: none;
+    z-index: 5;
+    animation: ripple 0.8s ease-out forwards;
+    transform: translate(-50%, -50%);
+  }
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<!-- Title -->
+<div id="title-screen" class="overlay visible">
+  <div class="title-kanji">茶</div>
+  <div class="title-main">The Way of Tea</div>
+  <div class="title-sub">A journey of quiet leaves<br>and warm, still moments</div>
+  <div class="title-tap">tap to begin</div>
+</div>
+
+<!-- HUD -->
+<div id="hud" class="overlay hidden">
+  <div class="hud-top">
+    <div class="leaf-counter" id="leaf-counter">
+      <svg class="leaf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 3C7 3 3 7.5 3 13c0 2 .5 3 1.5 4C6 18.5 9 20 12 21c3-1 6-2.5 7.5-4 1-1 1.5-2 1.5-4C21 7.5 17 3 12 3z" fill="rgba(123,144,96,0.25)" stroke="rgba(56,52,47,0.6)"/>
+        <path d="M12 3v18" stroke="rgba(56,52,47,0.35)" stroke-width="1"/>
+      </svg>
+      <span id="counter-text">0 / 8</span>
+    </div>
+    <div class="area-name" id="area-name">Green Tea Garden</div>
+  </div>
+</div>
+
+<!-- Leaf popup -->
+<div id="leaf-popup"></div>
+
+<!-- Progress bar -->
+<div class="leaf-progress" id="leaf-progress" style="opacity:0">
+  <div class="leaf-progress-fill" id="leaf-progress-fill"></div>
+</div>
+
+<!-- Brewing -->
+<div id="brewing-screen" class="overlay hidden">
+  <div class="brew-text" id="brew-text">Steeping gently...</div>
+</div>
+
+<!-- Complete -->
+<div id="complete-screen" class="overlay hidden">
+  <div class="quote-text" id="quote-text"></div>
+  <div class="quote-author" id="quote-author"></div>
+  <div class="restart-tap" id="restart-btn">tap to walk again</div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG
+// ============================================================
+const CFG = {
+  SCROLL_SPEED: 0.9,
+  LEAVES_NEEDED: 8,
+  COLLECT_RADIUS: 55,
+  WORLD_WIDTH: 4200,
+  PARTICLE_POOL: 120,
+
+  COLORS: {
+    skyTop:       [178, 192, 208],
+    skyBottom:    [230, 222, 210],
+    skyTopWarm:   [200, 210, 218],
+    skyBottomWarm:[238, 230, 215],
+    mtnFar:       '#A4ADB6',
+    mtnMid:       '#8A9A88',
+    mtnNear:      '#6E8860',
+    hillLight:    '#8FA86E',
+    hillDark:     '#6B8248',
+    bushDark:     '#4E6838',
+    bushMid:      '#628250',
+    bushLight:    '#7E9E62',
+    ground:       '#A89878',
+    groundLight:  '#C4B898',
+    water:        '#8AAAB8',
+    cream:        '#F2EDE4',
+  },
+
+  TEA_TYPES: [
+    { name: 'Sencha',         leaf: '#6B9E48', glow: '#A0D070' },
+    { name: 'Silver Needle',  leaf: '#C8C0A8', glow: '#E0D8C0' },
+    { name: 'Dragonwell',     leaf: '#88A840', glow: '#B0D060' },
+    { name: 'Gyokuro',        leaf: '#4E8038', glow: '#78B058' },
+    { name: 'Jasmine Pearl',  leaf: '#C0B098', glow: '#D8D0B8' },
+    { name: 'Iron Goddess',   leaf: '#907048', glow: '#B89068' },
+    { name: 'Matcha',         leaf: '#68A048', glow: '#90C868' },
+    { name: 'White Peony',    leaf: '#D0C8B0', glow: '#E8E0CA' },
+  ],
+
+  AREAS: [
+    { start: 0,    name: 'Misty Entrance' },
+    { start: 600,  name: 'Green Tea Garden' },
+    { start: 1400, name: 'Shaded Grove' },
+    { start: 2200, name: 'Jasmine Hillside' },
+    { start: 3200, name: 'The Tea House' },
+  ],
+
+  QUOTES: [
+    { text: '\u201CDrink your tea slowly and reverently, as if it is the axis on which the world earth revolves.\u201D', author: '\u2014 Thich Nhat Hanh' },
+    { text: '\u201CThere is something in the nature of tea that leads us into a world of quiet contemplation of life.\u201D', author: '\u2014 Lin Yutang' },
+    { text: '\u201CTea is nought but this: first you heat the water, then you make the tea. Then you drink it properly.\u201D', author: '\u2014 Sen no Riky\u016B' },
+    { text: '\u201CEach cup of tea represents an imaginary voyage.\u201D', author: '\u2014 Catherine Douzel' },
+  ],
+};
+
+// ============================================================
+//  STATE
+// ============================================================
+const PHASE = { TITLE: 0, GARDEN: 1, BREWING: 2, COMPLETE: 3 };
+
+const state = {
+  phase: PHASE.TITLE,
+  scrollX: 0,
+  time: 0,
+  collected: 0,
+  leaves: [],
+  bushes: [],
+  particles: [],
+  clouds: [],
+  ripples: [],
+  brewTimer: 0,
+  brewPhase: 0,
+  steamParticles: [],
+  cupFill: 0,
+  fadeAlpha: 0,
+  transitioning: false,
+};
+
+// ============================================================
+//  CANVAS SETUP
+// ============================================================
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let W, H, DPR;
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2.5);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ============================================================
+//  UTILITIES
+// ============================================================
+function lerp(a, b, t) { return a + (b - a) * t; }
+function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }
+function rand(a, b) { return a + Math.random() * (b - a); }
+function lerpColor(c1, c2, t) {
+  return `rgb(${Math.round(lerp(c1[0],c2[0],t))},${Math.round(lerp(c1[1],c2[1],t))},${Math.round(lerp(c1[2],c2[2],t))})`;
+}
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// Terrain height functions
+function mtnFarY(wx)  { return Math.sin(wx*0.0006)*55 + Math.sin(wx*0.002+2)*22 + Math.sin(wx*0.0004+5)*35; }
+function mtnMidY(wx)  { return Math.sin(wx*0.001+1)*40 + Math.sin(wx*0.003+3)*18 + Math.sin(wx*0.0008+4)*28; }
+function mtnNearY(wx) { return Math.sin(wx*0.0015+2)*30 + Math.sin(wx*0.004+1)*14 + Math.sin(wx*0.001+6)*22; }
+function hillY(wx)    { return Math.sin(wx*0.002)*22 + Math.sin(wx*0.007+2)*10 + Math.sin(wx*0.0012+4)*16; }
+function groundY(wx)  { return Math.sin(wx*0.003)*15 + Math.sin(wx*0.009+1)*7 + Math.sin(wx*0.0018+3)*10; }
+
+// ============================================================
+//  WORLD GENERATION
+// ============================================================
+function generateWorld() {
+  state.leaves = [];
+  state.bushes = [];
+  state.collected = 0;
+  state.scrollX = 0;
+
+  // Generate bushes
+  for (let x = 200; x < CFG.WORLD_WIDTH; x += rand(120, 200)) {
+    const gy = getScreenGroundY(x, 0);
+    state.bushes.push({
+      worldX: x,
+      width: rand(50, 90),
+      height: rand(30, 50),
+    });
+  }
+
+  // Generate collectible leaves
+  const spacing = (CFG.WORLD_WIDTH - 500) / (CFG.LEAVES_NEEDED + 3);
+  for (let i = 0; i < CFG.LEAVES_NEEDED + 3; i++) {
+    const wx = 350 + i * spacing + rand(-40, 40);
+    state.leaves.push({
+      worldX: wx,
+      offsetY: rand(-50, -25),
+      type: CFG.TEA_TYPES[i % CFG.TEA_TYPES.length],
+      collected: false,
+      collecting: false,
+      collectT: 0,
+      sway: rand(0, Math.PI * 2),
+      size: rand(13, 18),
+      angle: rand(-0.4, 0.4),
+      glowPhase: rand(0, Math.PI * 2),
+    });
+  }
+
+  // Generate clouds
+  state.clouds = [];
+  for (let i = 0; i < 6; i++) {
+    state.clouds.push({
+      x: rand(-200, W + 400),
+      y: rand(20, H * 0.25),
+      w: rand(100, 250),
+      h: rand(15, 35),
+      speed: rand(0.03, 0.08),
+      opacity: rand(0.04, 0.12),
+    });
+  }
+
+  // Init particle pool
+  state.particles = [];
+  for (let i = 0; i < CFG.PARTICLE_POOL; i++) {
+    state.particles.push({ active: false });
+  }
+}
+
+function getScreenGroundY(worldX, scrollOffset) {
+  return H * 0.68 + groundY(worldX) - hillY(worldX) * 0.3;
+}
+
+// ============================================================
+//  PARTICLE SYSTEM
+// ============================================================
+function spawnParticle(x, y, vx, vy, life, size, color, type) {
+  for (const p of state.particles) {
+    if (!p.active) {
+      Object.assign(p, { active:true, x, y, vx, vy, life, maxLife:life, size, color, type, startSize: size });
+      return p;
+    }
+  }
+}
+
+function spawnAmbient() {
+  if (Math.random() < 0.03) {
+    spawnParticle(rand(0, W), rand(H*0.3, H*0.8), rand(-0.15, 0.15), rand(-0.3, -0.05), rand(180, 400), rand(2, 5), 'rgba(200,195,180,0.08)', 'mist');
+  }
+  if (Math.random() < 0.04) {
+    spawnParticle(rand(0, W), rand(H*0.5, H*0.9), rand(-0.08, 0.08), rand(-0.2, -0.08), rand(120, 250), rand(1.5, 3), 'rgba(180,170,140,0.15)', 'pollen');
+  }
+  if (Math.random() < 0.008) {
+    const sx = rand(0, W);
+    spawnParticle(sx, rand(H*0.3, H*0.7), rand(-0.3, 0.3), rand(-0.15, 0.15), rand(80, 160), rand(1, 2.5), 'rgba(220,200,180,0.2)', 'petal');
+  }
+}
+
+function spawnCollectBurst(x, y, color) {
+  for (let i = 0; i < 12; i++) {
+    const angle = (Math.PI * 2 / 12) * i + rand(-0.3, 0.3);
+    const speed = rand(0.5, 2);
+    spawnParticle(x, y, Math.cos(angle)*speed, Math.sin(angle)*speed - 0.5, rand(40, 80), rand(2, 5), hexToRgba(color, 0.5), 'spark');
+  }
+  for (let i = 0; i < 6; i++) {
+    spawnParticle(x + rand(-15,15), y + rand(-15,15), rand(-0.2,0.2), rand(-0.8, -0.3), rand(60, 120), rand(3, 7), hexToRgba(color, 0.2), 'glow');
+  }
+}
+
+function updateParticles() {
+  for (const p of state.particles) {
+    if (!p.active) continue;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+    if (p.type === 'petal') {
+      p.x += Math.sin(state.time * 0.02 + p.y * 0.01) * 0.3;
+    }
+    if (p.type === 'mist') {
+      p.size += 0.02;
+    }
+    if (p.life <= 0) p.active = false;
+  }
+}
+
+function drawParticles() {
+  for (const p of state.particles) {
+    if (!p.active) continue;
+    const t = p.life / p.maxLife;
+    const alpha = t < 0.2 ? t / 0.2 : t > 0.7 ? (1 - t) / 0.3 : 1;
+    ctx.globalAlpha = alpha;
+    if (p.type === 'spark') {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * t, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (p.type === 'glow') {
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+      grad.addColorStop(0, p.color);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ============================================================
+//  RENDERING — GARDEN SCENE
+// ============================================================
+function drawSky(progress) {
+  const top = lerpColor(CFG.COLORS.skyTop, CFG.COLORS.skyTopWarm, progress);
+  const bottom = lerpColor(CFG.COLORS.skyBottom, CFG.COLORS.skyBottomWarm, progress);
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, top);
+  grad.addColorStop(0.55, bottom);
+  grad.addColorStop(1, CFG.COLORS.cream);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function drawClouds() {
+  for (const c of state.clouds) {
+    c.x += c.speed;
+    if (c.x > W + c.w) c.x = -c.w;
+    ctx.fillStyle = `rgba(240,236,228,${c.opacity})`;
+    ctx.beginPath();
+    ctx.ellipse(c.x, c.y, c.w/2, c.h/2, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(c.x - c.w*0.25, c.y + c.h*0.15, c.w*0.3, c.h*0.4, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(c.x + c.w*0.2, c.y + c.h*0.1, c.w*0.25, c.h*0.35, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function drawMountainLayer(yFn, parallax, baseY, color, opacity) {
+  const offset = state.scrollX * parallax;
+  ctx.fillStyle = color;
+  ctx.globalAlpha = opacity;
+  ctx.beginPath();
+  ctx.moveTo(-5, H);
+  for (let x = -5; x <= W + 5; x += 4) {
+    const wy = yFn(x + offset);
+    ctx.lineTo(x, baseY + wy);
+  }
+  ctx.lineTo(W + 5, H);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+function drawGround() {
+  const offset = state.scrollX;
+  // Main ground fill
+  const baseY = H * 0.68;
+  const grad = ctx.createLinearGradient(0, baseY - 40, 0, H);
+  grad.addColorStop(0, CFG.COLORS.hillLight);
+  grad.addColorStop(0.3, CFG.COLORS.hillDark);
+  grad.addColorStop(0.7, CFG.COLORS.ground);
+  grad.addColorStop(1, CFG.COLORS.groundLight);
+
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(-5, H);
+  for (let x = -5; x <= W + 5; x += 3) {
+    const wx = x + offset;
+    const y = baseY + groundY(wx) - hillY(wx) * 0.3;
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(W + 5, H);
+  ctx.closePath();
+  ctx.fill();
+
+  // Subtle texture stripes
+  ctx.globalAlpha = 0.06;
+  for (let i = 0; i < 5; i++) {
+    const stripeY = baseY + 30 + i * 25;
+    ctx.beginPath();
+    for (let x = -5; x <= W + 5; x += 4) {
+      const wx = x + offset * (0.95 + i * 0.01);
+      const y = stripeY + Math.sin(wx * 0.005 + i) * 8;
+      if (x === -5) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = i % 2 === 0 ? CFG.COLORS.hillDark : CFG.COLORS.bushDark;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawBush(screenX, y, w, h) {
+  const shade1 = CFG.COLORS.bushDark;
+  const shade2 = CFG.COLORS.bushMid;
+  const shade3 = CFG.COLORS.bushLight;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(50,60,30,0.1)';
+  ctx.beginPath();
+  ctx.ellipse(screenX, y + 5, w * 0.5, h * 0.15, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Main bush body — overlapping ellipses
+  const blobs = [
+    { dx: 0, dy: -h*0.15, rx: w*0.38, ry: h*0.42, c: shade2 },
+    { dx: -w*0.2, dy: 0, rx: w*0.3, ry: h*0.36, c: shade1 },
+    { dx: w*0.2, dy: -h*0.05, rx: w*0.32, ry: h*0.38, c: shade1 },
+    { dx: -w*0.05, dy: -h*0.3, rx: w*0.25, ry: h*0.28, c: shade3 },
+    { dx: w*0.12, dy: -h*0.22, rx: w*0.28, ry: h*0.32, c: shade2 },
+  ];
+
+  for (const b of blobs) {
+    ctx.fillStyle = b.c;
+    ctx.beginPath();
+    ctx.ellipse(screenX + b.dx, y + b.dy, b.rx, b.ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawBushes() {
+  for (const bush of state.bushes) {
+    const sx = bush.worldX - state.scrollX;
+    if (sx < -100 || sx > W + 100) continue;
+    const gy = getScreenGroundY(bush.worldX, state.scrollX);
+    drawBush(sx, gy - bush.height * 0.3, bush.width, bush.height);
+  }
+}
+
+function drawLeafShape(x, y, size, angle, color, glowColor, glowIntensity) {
+  // Glow
+  if (glowIntensity > 0) {
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, size * 3);
+    grad.addColorStop(0, hexToRgba(glowColor, 0.25 * glowIntensity));
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, size * 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+
+  // Leaf shape
+  ctx.beginPath();
+  ctx.moveTo(0, -size);
+  ctx.bezierCurveTo(size*0.65, -size*0.55, size*0.65, size*0.55, 0, size);
+  ctx.bezierCurveTo(-size*0.65, size*0.55, -size*0.65, -size*0.55, 0, -size);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = hexToRgba(color, 0.5);
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+
+  // Central vein
+  ctx.beginPath();
+  ctx.moveTo(0, -size * 0.75);
+  ctx.lineTo(0, size * 0.75);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 0.6;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawCollectibleLeaves() {
+  for (const leaf of state.leaves) {
+    if (leaf.collected) continue;
+    const sx = leaf.worldX - state.scrollX;
+    if (sx < -60 || sx > W + 60) continue;
+
+    const gy = getScreenGroundY(leaf.worldX, state.scrollX);
+    let lx = sx + Math.sin(state.time * 0.0015 + leaf.sway) * 6;
+    let ly = gy + leaf.offsetY + Math.sin(state.time * 0.002 + leaf.sway + 1) * 4;
+
+    // Collecting animation
+    if (leaf.collecting) {
+      leaf.collectT += 0.02;
+      const t = Math.min(leaf.collectT, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      ly -= ease * 80;
+      lx += Math.sin(t * Math.PI * 3) * 15 * (1 - t);
+      ctx.globalAlpha = 1 - t;
+      if (t >= 1) {
+        leaf.collected = true;
+        ctx.globalAlpha = 1;
+        continue;
+      }
+    }
+
+    const glowPulse = 0.5 + Math.sin(state.time * 0.003 + leaf.glowPhase) * 0.5;
+    drawLeafShape(lx, ly, leaf.size, leaf.angle + Math.sin(state.time*0.001+leaf.sway)*0.15, leaf.type.leaf, leaf.type.glow, leaf.collecting ? 0 : glowPulse);
+    ctx.globalAlpha = 1;
+
+    // Store screen position for hit testing
+    leaf._sx = lx;
+    leaf._sy = ly;
+  }
+}
+
+// Small foreground grass blades
+function drawForeground() {
+  const offset = state.scrollX * 1.15;
+  ctx.globalAlpha = 0.25;
+  for (let x = -10; x < W + 10; x += 14) {
+    const wx = x + offset;
+    const baseY = H - 20 + Math.sin(wx * 0.03) * 5;
+    const h = 12 + Math.sin(wx * 0.07 + 1) * 6;
+    const sway = Math.sin(state.time * 0.001 + wx * 0.01) * 3;
+    ctx.strokeStyle = CFG.COLORS.hillDark;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, baseY);
+    ctx.quadraticCurveTo(x + sway, baseY - h * 0.6, x + sway * 1.5, baseY - h);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ============================================================
+//  RENDERING — BREWING / COMPLETE SCENE
+// ============================================================
+function drawBrewScene() {
+  // Warm background
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#E8E0D4');
+  grad.addColorStop(0.5, '#F0EAE0');
+  grad.addColorStop(1, '#F2EDE4');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  const cx = W / 2;
+  const cy = H * 0.48;
+  const s = Math.min(W, H) * 0.18;
+
+  // Saucer
+  ctx.fillStyle = '#D8D0C4';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + s * 0.85, s * 1.1, s * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#C0B8A8';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Cup body
+  ctx.beginPath();
+  ctx.moveTo(cx - s * 0.55, cy - s * 0.3);
+  ctx.bezierCurveTo(cx - s*0.6, cy + s*0.4, cx - s*0.25, cy + s*0.7, cx, cy + s*0.72);
+  ctx.bezierCurveTo(cx + s*0.25, cy + s*0.7, cx + s*0.6, cy + s*0.4, cx + s*0.55, cy - s*0.3);
+  ctx.closePath();
+
+  const cupGrad = ctx.createLinearGradient(cx - s*0.5, cy, cx + s*0.5, cy);
+  cupGrad.addColorStop(0, '#E8E0D6');
+  cupGrad.addColorStop(0.3, '#F0EAE0');
+  cupGrad.addColorStop(0.7, '#E8E0D6');
+  cupGrad.addColorStop(1, '#D8D0C4');
+  ctx.fillStyle = cupGrad;
+  ctx.fill();
+  ctx.strokeStyle = '#B8B0A0';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // Tea liquid
+  if (state.cupFill > 0) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(cx - s * 0.55, cy - s * 0.3);
+    ctx.bezierCurveTo(cx - s*0.6, cy + s*0.4, cx - s*0.25, cy + s*0.7, cx, cy + s*0.72);
+    ctx.bezierCurveTo(cx + s*0.25, cy + s*0.7, cx + s*0.6, cy + s*0.4, cx + s*0.55, cy - s*0.3);
+    ctx.closePath();
+    ctx.clip();
+
+    const fillY = cy + s * 0.7 - state.cupFill * s * 1.0;
+    const teaGrad = ctx.createLinearGradient(0, fillY, 0, cy + s * 0.75);
+    teaGrad.addColorStop(0, 'rgba(140,160,80,0.6)');
+    teaGrad.addColorStop(0.5, 'rgba(120,140,60,0.7)');
+    teaGrad.addColorStop(1, 'rgba(100,120,50,0.8)');
+    ctx.fillStyle = teaGrad;
+    ctx.fillRect(cx - s, fillY, s * 2, cy + s - fillY);
+
+    // Surface shimmer
+    ctx.fillStyle = 'rgba(200,210,160,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(cx, fillY + 2, s * 0.45, s * 0.06, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Handle
+  ctx.beginPath();
+  ctx.arc(cx + s * 0.62, cy + s * 0.1, s * 0.2, -Math.PI * 0.55, Math.PI * 0.55);
+  ctx.strokeStyle = '#B8B0A0';
+  ctx.lineWidth = s * 0.06;
+  ctx.stroke();
+
+  // Cup rim highlight
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - s * 0.28, s * 0.52, s * 0.08, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = '#C8C0B4';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Steam
+  if (state.cupFill > 0.3) {
+    const steamAlpha = Math.min((state.cupFill - 0.3) / 0.3, 1) * 0.35;
+    for (let i = 0; i < 3; i++) {
+      const sx = cx + (i - 1) * s * 0.25;
+      const st = state.time * 0.001 + i * 2;
+      ctx.globalAlpha = steamAlpha * (0.5 + Math.sin(st + i) * 0.3);
+      ctx.beginPath();
+      let py = cy - s * 0.35;
+      ctx.moveTo(sx, py);
+      for (let j = 0; j < 5; j++) {
+        py -= 14;
+        const dx = Math.sin(st + j * 0.8 + i) * 10;
+        ctx.quadraticCurveTo(sx + dx * 1.5, py + 7, sx + dx, py);
+      }
+      ctx.strokeStyle = 'rgba(200,195,185,0.6)';
+      ctx.lineWidth = 2 + Math.sin(st) * 0.5;
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Floating leaves during brew
+  if (state.brewPhase >= 1 && state.brewPhase < 3) {
+    const leafCount = Math.min(state.collected, Math.floor((state.brewPhase - 1) * 8));
+    for (let i = 0; i < leafCount; i++) {
+      const lt = state.time * 0.001 + i * 1.3;
+      const lx = cx + Math.sin(lt + i) * s * 0.35 * (1 - (state.brewPhase - 1) * 0.3);
+      const ly = cy - s * 0.6 + (state.brewPhase - 1) * s * 0.5 + Math.sin(lt * 0.7) * 5;
+      const leafType = CFG.TEA_TYPES[i % CFG.TEA_TYPES.length];
+      ctx.globalAlpha = Math.max(0, 1 - (state.brewPhase - 2));
+      drawLeafShape(lx, ly, 8, lt * 0.3, leafType.leaf, leafType.glow, 0);
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ============================================================
+//  GAME LOGIC
+// ============================================================
+function tryCollect(tx, ty) {
+  let closest = null;
+  let closestDist = CFG.COLLECT_RADIUS;
+
+  for (const leaf of state.leaves) {
+    if (leaf.collected || leaf.collecting) continue;
+    if (leaf._sx === undefined) continue;
+    const dx = tx - leaf._sx;
+    const dy = ty - leaf._sy;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < closestDist) {
+      closestDist = dist;
+      closest = leaf;
+    }
+  }
+
+  if (closest) {
+    closest.collecting = true;
+    closest.collectT = 0;
+    state.collected++;
+    spawnCollectBurst(closest._sx, closest._sy, closest.type.glow);
+    updateHUD(closest.type.name);
+
+    if (state.collected >= CFG.LEAVES_NEEDED) {
+      setTimeout(() => startBrewing(), 1200);
+    }
+  }
+
+  // Tap ripple
+  const ripple = document.createElement('div');
+  ripple.className = 'tap-ripple';
+  ripple.style.left = tx + 'px';
+  ripple.style.top = ty + 'px';
+  document.body.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 900);
+}
+
+function updateHUD(teaName) {
+  const counter = document.getElementById('counter-text');
+  counter.textContent = `${state.collected} / ${CFG.LEAVES_NEEDED}`;
+  const el = document.getElementById('leaf-counter');
+  el.classList.remove('pulse');
+  void el.offsetWidth;
+  el.classList.add('pulse');
+
+  const fill = document.getElementById('leaf-progress-fill');
+  fill.style.width = (state.collected / CFG.LEAVES_NEEDED * 100) + '%';
+
+  if (teaName) {
+    const popup = document.getElementById('leaf-popup');
+    popup.textContent = teaName;
+    popup.classList.add('show');
+    clearTimeout(popup._timer);
+    popup._timer = setTimeout(() => popup.classList.remove('show'), 1800);
+  }
+}
+
+function updateAreaName() {
+  const areas = CFG.AREAS;
+  let current = areas[0].name;
+  for (const a of areas) {
+    if (state.scrollX >= a.start) current = a.name;
+  }
+  document.getElementById('area-name').textContent = current;
+}
+
+// ============================================================
+//  PHASE TRANSITIONS
+// ============================================================
+function startGame() {
+  if (state.phase !== PHASE.TITLE) return;
+  state.phase = PHASE.GARDEN;
+  generateWorld();
+
+  document.getElementById('title-screen').classList.remove('visible');
+  document.getElementById('title-screen').classList.add('hidden');
+  setTimeout(() => {
+    document.getElementById('hud').classList.remove('hidden');
+    document.getElementById('hud').classList.add('visible');
+    document.getElementById('leaf-progress').style.opacity = '1';
+    updateHUD();
+  }, 600);
+}
+
+function startBrewing() {
+  state.phase = PHASE.BREWING;
+  state.brewTimer = 0;
+  state.brewPhase = 0;
+  state.cupFill = 0;
+
+  document.getElementById('hud').classList.remove('visible');
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('leaf-progress').style.opacity = '0';
+  document.getElementById('leaf-popup').classList.remove('show');
+
+  setTimeout(() => {
+    document.getElementById('brewing-screen').classList.remove('hidden');
+    document.getElementById('brewing-screen').classList.add('visible');
+    setTimeout(() => {
+      document.getElementById('brewing-screen').classList.add('bg-fill');
+      document.getElementById('brew-text').classList.add('show');
+    }, 500);
+  }, 300);
+}
+
+function startComplete() {
+  state.phase = PHASE.COMPLETE;
+
+  const q = CFG.QUOTES[Math.floor(Math.random() * CFG.QUOTES.length)];
+  document.getElementById('quote-text').textContent = q.text;
+  document.getElementById('quote-author').textContent = q.author;
+
+  document.getElementById('brewing-screen').classList.remove('visible');
+  document.getElementById('brewing-screen').classList.add('hidden');
+  setTimeout(() => {
+    document.getElementById('complete-screen').classList.remove('hidden');
+    document.getElementById('complete-screen').classList.add('visible');
+  }, 800);
+}
+
+function restart() {
+  state.phase = PHASE.TITLE;
+  state.scrollX = 0;
+  state.brewTimer = 0;
+
+  document.getElementById('complete-screen').classList.remove('visible');
+  document.getElementById('complete-screen').classList.add('hidden');
+  document.getElementById('brewing-screen').classList.remove('bg-fill');
+  document.getElementById('brew-text').classList.remove('show');
+
+  // Reset title animations
+  setTimeout(() => {
+    const title = document.getElementById('title-screen');
+    title.classList.remove('hidden');
+    // Re-trigger animations by re-inserting content
+    const clone = title.cloneNode(true);
+    title.parentNode.replaceChild(clone, title);
+    clone.classList.add('visible');
+    clone.addEventListener('click', startGame, { once: false });
+    clone.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); }, { once: false });
+  }, 600);
+}
+
+// ============================================================
+//  INPUT
+// ============================================================
+function handleTap(x, y) {
+  if (state.phase === PHASE.TITLE) {
+    startGame();
+  } else if (state.phase === PHASE.GARDEN) {
+    tryCollect(x, y);
+  }
+}
+
+document.getElementById('title-screen').addEventListener('click', startGame);
+document.getElementById('title-screen').addEventListener('touchend', (e) => {
+  e.preventDefault();
+  startGame();
+});
+
+document.getElementById('restart-btn').addEventListener('click', restart);
+document.getElementById('restart-btn').addEventListener('touchend', (e) => {
+  e.preventDefault();
+  restart();
+});
+
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  handleTap(touch.clientX, touch.clientY);
+}, { passive: false });
+
+canvas.addEventListener('click', (e) => {
+  handleTap(e.clientX, e.clientY);
+});
+
+// Prevent all default touch behaviors
+document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+
+// ============================================================
+//  MAIN LOOP
+// ============================================================
+let lastTime = 0;
+
+function update(dt) {
+  state.time += dt;
+
+  if (state.phase === PHASE.GARDEN) {
+    // Auto scroll
+    if (state.collected < CFG.LEAVES_NEEDED) {
+      state.scrollX += CFG.SCROLL_SPEED * (dt / 16);
+    }
+    spawnAmbient();
+    updateParticles();
+    updateAreaName();
+
+    // Check if we've passed the world
+    if (state.scrollX > CFG.WORLD_WIDTH && state.collected < CFG.LEAVES_NEEDED) {
+      state.scrollX = CFG.WORLD_WIDTH;
+    }
+  }
+
+  if (state.phase === PHASE.BREWING) {
+    state.brewTimer += dt;
+    state.brewPhase = state.brewTimer / 2000; // phases over ~8 seconds
+
+    if (state.brewPhase > 1) {
+      state.cupFill = Math.min(1, (state.brewPhase - 1) / 2.5);
+    }
+
+    if (state.brewPhase > 4) {
+      startComplete();
+    }
+    updateParticles();
+  }
+
+  if (state.phase === PHASE.COMPLETE) {
+    updateParticles();
+  }
+}
+
+function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  if (state.phase === PHASE.GARDEN || state.phase === PHASE.TITLE) {
+    const progress = clamp(state.scrollX / CFG.WORLD_WIDTH, 0, 1);
+
+    drawSky(progress);
+    drawClouds();
+
+    // Far mountains
+    drawMountainLayer(mtnFarY, 0.08, H * 0.35, CFG.COLORS.mtnFar, 0.45);
+
+    // Mid mountains
+    drawMountainLayer(mtnMidY, 0.2, H * 0.42, CFG.COLORS.mtnMid, 0.55);
+
+    // Near mountains / high hills
+    drawMountainLayer(mtnNearY, 0.35, H * 0.5, CFG.COLORS.mtnNear, 0.5);
+
+    // Mist layer
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = '#E0D8CC';
+    ctx.fillRect(0, H * 0.45, W, H * 0.12);
+    ctx.globalAlpha = 1;
+
+    // Ground terrain
+    drawGround();
+
+    // Bushes
+    drawBushes();
+
+    // Collectible leaves
+    if (state.phase === PHASE.GARDEN) {
+      drawCollectibleLeaves();
+    }
+
+    // Particles
+    drawParticles();
+
+    // Foreground grass
+    drawForeground();
+  }
+
+  if (state.phase === PHASE.BREWING || state.phase === PHASE.COMPLETE) {
+    drawBrewScene();
+    drawParticles();
+  }
+}
+
+function loop(timestamp) {
+  const dt = Math.min(timestamp - lastTime, 50);
+  lastTime = timestamp;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame((t) => {
+  lastTime = t;
+  loop(t);
+});
+</script>
+</body>
+</html>
