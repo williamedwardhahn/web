@@ -302,11 +302,49 @@
     animation: ripple 0.8s ease-out forwards;
     transform: translate(-50%, -50%);
   }
+
+  /* ---- Sound Toggle ---- */
+  #sound-toggle {
+    position: fixed;
+    top: max(env(safe-area-inset-top, 16px), 16px);
+    right: 16px;
+    z-index: 20;
+    width: 40px; height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(242, 237, 228, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #sound-toggle.show { opacity: 1; }
+  #sound-toggle svg { width: 20px; height: 20px; stroke: var(--ink-light); fill: none; stroke-width: 1.5; }
 </style>
 </head>
 <body>
 
 <canvas id="game"></canvas>
+
+<!-- Sound Toggle -->
+<button id="sound-toggle" aria-label="Toggle sound">
+  <svg id="sound-on-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+  </svg>
+  <svg id="sound-off-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <line x1="23" y1="9" x2="17" y2="15"/>
+    <line x1="17" y1="9" x2="23" y2="15"/>
+  </svg>
+</button>
 
 <!-- Title -->
 <div id="title-screen" class="overlay visible">
@@ -974,6 +1012,7 @@ function tryCollect(tx, ty) {
     closest.collectT = 0;
     state.collected++;
     spawnCollectBurst(closest._sx, closest._sy, closest.type.glow);
+    playCollectSound();
     updateHUD(closest.type.name);
 
     if (state.collected >= CFG.LEAVES_NEEDED) {
@@ -1026,6 +1065,8 @@ function startGame() {
   if (state.phase !== PHASE.TITLE) return;
   state.phase = PHASE.GARDEN;
   generateWorld();
+  initAudio();
+  document.getElementById('sound-toggle').classList.add('show');
 
   document.getElementById('title-screen').classList.remove('visible');
   document.getElementById('title-screen').classList.add('hidden');
@@ -1042,6 +1083,7 @@ function startBrewing() {
   state.brewTimer = 0;
   state.brewPhase = 0;
   state.cupFill = 0;
+  playBrewSound();
 
   document.getElementById('hud').classList.remove('visible');
   document.getElementById('hud').classList.add('hidden');
@@ -1234,6 +1276,234 @@ requestAnimationFrame((t) => {
   lastTime = t;
   loop(t);
 });
+
+// ============================================================
+//  AUDIO ENGINE — Procedural Zen Music
+// ============================================================
+const audio = {
+  ctx: null,
+  master: null,
+  musicGain: null,
+  sfxGain: null,
+  muted: false,
+  started: false,
+  droneOscs: [],
+  chimeTimer: 0,
+  brewDrone: null,
+};
+
+// Pentatonic notes in different octaves (Hz) — D pentatonic for warmth
+const PENTA = {
+  low:  [146.83, 164.81, 196.00, 220.00, 261.63],           // D3 E3 G3 A3 C4
+  mid:  [293.66, 329.63, 392.00, 440.00, 523.25],           // D4 E4 G4 A4 C5
+  high: [587.33, 659.25, 783.99, 880.00, 1046.50],          // D5 E5 G5 A5 C6
+  bell: [1174.66, 1318.51, 1567.98],                         // D6 E6 G6
+};
+
+function initAudio() {
+  if (audio.started) return;
+  audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  audio.master = audio.ctx.createGain();
+  audio.master.gain.value = 1.0;
+  audio.master.connect(audio.ctx.destination);
+
+  audio.musicGain = audio.ctx.createGain();
+  audio.musicGain.gain.value = 0.0;
+  audio.musicGain.connect(audio.master);
+
+  audio.sfxGain = audio.ctx.createGain();
+  audio.sfxGain.gain.value = 0.6;
+  audio.sfxGain.connect(audio.master);
+
+  audio.started = true;
+
+  // Fade music in gently
+  audio.musicGain.gain.linearRampToValueAtTime(0.35, audio.ctx.currentTime + 3);
+
+  startDrone();
+  scheduleChimes();
+}
+
+function startDrone() {
+  const ac = audio.ctx;
+  const now = ac.currentTime;
+
+  // Two detuned sine drones for a warm pad
+  const freqs = [146.83, 220.00]; // D3 and A3 — a perfect fifth
+  audio.droneOscs = [];
+
+  freqs.forEach((freq, i) => {
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    const filter = ac.createBiquadFilter();
+
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    // Slight detuning for richness
+    osc.detune.value = (i === 0 ? -3 : 3);
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 400;
+    filter.Q.value = 0.7;
+
+    gain.gain.value = 0;
+    gain.gain.linearRampToValueAtTime(0.12, now + 4);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audio.musicGain);
+    osc.start(now);
+
+    audio.droneOscs.push({ osc, gain, filter });
+  });
+
+  // Sub-bass sine for depth
+  const sub = ac.createOscillator();
+  const subGain = ac.createGain();
+  sub.type = 'sine';
+  sub.frequency.value = 73.42; // D2
+  subGain.gain.value = 0;
+  subGain.gain.linearRampToValueAtTime(0.06, now + 5);
+  sub.connect(subGain);
+  subGain.connect(audio.musicGain);
+  sub.start(now);
+  audio.droneOscs.push({ osc: sub, gain: subGain });
+
+  // Very slow LFO to modulate drone filter — breathing effect
+  const lfo = ac.createOscillator();
+  const lfoGain = ac.createGain();
+  lfo.type = 'sine';
+  lfo.frequency.value = 0.06; // One breath every ~16 seconds
+  lfoGain.gain.value = 150;
+  lfo.connect(lfoGain);
+  lfoGain.connect(audio.droneOscs[0].filter.frequency);
+  lfoGain.connect(audio.droneOscs[1].filter.frequency);
+  lfo.start(now);
+}
+
+function playChime(freq, delay, duration, volume) {
+  const ac = audio.ctx;
+  if (!ac) return;
+  const now = ac.currentTime + (delay || 0);
+  const dur = duration || 4;
+  const vol = volume || 0.08;
+
+  const osc = ac.createOscillator();
+  const osc2 = ac.createOscillator();
+  const gain = ac.createGain();
+  const filter = ac.createBiquadFilter();
+
+  // Main tone — triangle for soft bell quality
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+
+  // Harmonic overtone — very quiet sine an octave up
+  osc2.type = 'sine';
+  osc2.frequency.value = freq * 2;
+
+  filter.type = 'lowpass';
+  filter.frequency.value = freq * 3;
+  filter.Q.value = 0.5;
+
+  // Gentle envelope: quick attack, long decay
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(vol, now + 0.08);
+  gain.gain.exponentialRampToValueAtTime(vol * 0.4, now + dur * 0.3);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+  osc.connect(filter);
+  osc2.connect(gain);
+  filter.connect(gain);
+  gain.connect(audio.musicGain);
+
+  osc.start(now);
+  osc2.start(now);
+  osc.stop(now + dur + 0.1);
+  osc2.stop(now + dur + 0.1);
+}
+
+function scheduleChimes() {
+  if (!audio.ctx) return;
+
+  function queueNext() {
+    if (audio.muted || !audio.ctx) return;
+
+    // Random interval between chimes: 2.5 to 6 seconds
+    const interval = 2500 + Math.random() * 3500;
+
+    setTimeout(() => {
+      if (!audio.ctx || audio.muted) { queueNext(); return; }
+
+      // Choose notes based on game phase
+      let notePool;
+      if (state.phase === PHASE.BREWING || state.phase === PHASE.COMPLETE) {
+        notePool = PENTA.mid;
+      } else {
+        notePool = Math.random() < 0.3 ? PENTA.high : PENTA.mid;
+      }
+
+      const note = notePool[Math.floor(Math.random() * notePool.length)];
+      playChime(note, 0, 3 + Math.random() * 3, 0.06 + Math.random() * 0.04);
+
+      // Sometimes play a second note for a gentle interval
+      if (Math.random() < 0.35) {
+        const note2 = notePool[Math.floor(Math.random() * notePool.length)];
+        playChime(note2, 0.4 + Math.random() * 0.8, 3 + Math.random() * 2, 0.04);
+      }
+
+      // Rare low bell tone
+      if (Math.random() < 0.15) {
+        const low = PENTA.low[Math.floor(Math.random() * PENTA.low.length)];
+        playChime(low, 0.2, 5 + Math.random() * 3, 0.05);
+      }
+
+      queueNext();
+    }, interval);
+  }
+  queueNext();
+}
+
+// Collect sound — bright ascending chime
+function playCollectSound() {
+  if (!audio.ctx || audio.muted) return;
+  const notes = PENTA.high;
+  const note = notes[Math.floor(Math.random() * notes.length)];
+  playChime(note, 0, 2, 0.12);
+  // Harmonic sparkle
+  playChime(note * 1.5, 0.08, 1.5, 0.06);
+  playChime(PENTA.bell[Math.floor(Math.random() * PENTA.bell.length)], 0.15, 1, 0.04);
+}
+
+// Brew transition — warm chord swell
+function playBrewSound() {
+  if (!audio.ctx || audio.muted) return;
+  const chord = [PENTA.low[0], PENTA.low[3], PENTA.mid[0], PENTA.mid[2]]; // D3, A3, D4, G4
+  chord.forEach((f, i) => {
+    playChime(f, i * 0.3, 6, 0.07);
+  });
+}
+
+// Sound toggle
+const soundBtn = document.getElementById('sound-toggle');
+soundBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleSound();
+});
+soundBtn.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  toggleSound();
+});
+
+function toggleSound() {
+  audio.muted = !audio.muted;
+  document.getElementById('sound-on-icon').style.display = audio.muted ? 'none' : 'block';
+  document.getElementById('sound-off-icon').style.display = audio.muted ? 'block' : 'none';
+  if (audio.master) {
+    audio.master.gain.linearRampToValueAtTime(audio.muted ? 0 : 1, audio.ctx.currentTime + 0.3);
+  }
+}
+
 </script>
 </body>
 </html>
