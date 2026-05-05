@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#1a0f08" />
+<title>Indian Spices — Learning Dashboard</title>
+<style>
+  :root {
+    --bg: #1a0f08;
+    --bg-2: #2a1810;
+    --panel: #3a2418;
+    --panel-2: #4a2e1c;
+    --accent: #e8a33d;
+    --accent-2: #d96b3a;
+    --hot: #c0392b;
+    --text: #f5e6d3;
+    --muted: #b8a088;
+    --border: #5a3825;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  header {
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.25);
+  }
+  h1 {
+    margin: 0 0 6px 0;
+    font-size: 28px;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  input[type="search"] {
+    flex: 1 1 220px;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+  }
+  input[type="search"]:focus { border-color: var(--accent); }
+  .filter-btn, .mode-btn {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover, .mode-btn:hover { background: var(--panel-2); }
+  .filter-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .mode-btn.active { background: var(--accent-2); color: var(--text); border-color: var(--accent-2); }
+
+  main {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 0;
+    min-height: calc(100vh - 130px);
+  }
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  .grid-panel { padding: 24px 32px; overflow-y: auto; max-height: calc(100vh - 130px); }
+  .detail-panel {
+    padding: 24px 32px;
+    background: rgba(0,0,0,0.2);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    max-height: calc(100vh - 130px);
+  }
+  @media (max-width: 900px) {
+    .grid-panel, .detail-panel { max-height: none; }
+    .detail-panel { border-left: none; border-top: 1px solid var(--border); }
+  }
+
+  .spice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .spice-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .spice-card:hover {
+    background: var(--panel-2);
+    transform: translateY(-2px);
+    border-color: var(--accent);
+  }
+  .spice-card.selected {
+    background: var(--panel-2);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(232,163,61,0.3);
+  }
+  .spice-emoji { font-size: 36px; line-height: 1; margin-bottom: 8px; }
+  .spice-name { font-weight: 600; font-size: 14px; color: var(--text); }
+  .spice-hindi { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .heat-dots {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 9px;
+    color: var(--hot);
+    letter-spacing: 1px;
+  }
+
+  .detail-empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 14px;
+  }
+  .detail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .detail-emoji { font-size: 64px; }
+  .detail-title h2 { margin: 0; color: var(--accent); font-size: 26px; }
+  .detail-title .hindi { color: var(--muted); font-size: 16px; margin-top: 2px; font-style: italic; }
+  .detail-title .botanical { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  .detail-section { margin-bottom: 18px; }
+  .detail-section h3 {
+    margin: 0 0 6px 0;
+    color: var(--accent-2);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .detail-section p { margin: 0; font-size: 14px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  .heat-meter {
+    display: inline-flex;
+    gap: 3px;
+    align-items: center;
+  }
+  .heat-meter span {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+  .heat-meter span.on { background: var(--hot); border-color: var(--hot); }
+
+  /* Quiz mode */
+  .quiz-container { display: none; padding: 40px 32px; max-width: 600px; margin: 0 auto; }
+  .quiz-container.active { display: block; }
+  .quiz-question {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .quiz-emoji { font-size: 80px; margin-bottom: 12px; }
+  .quiz-prompt { font-size: 18px; margin-bottom: 4px; }
+  .quiz-hint { color: var(--muted); font-size: 13px; }
+  .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .quiz-option {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .quiz-option:hover:not(:disabled) { background: var(--panel-2); border-color: var(--accent); }
+  .quiz-option.correct { background: #2d5a2d; border-color: #4a8a4a; }
+  .quiz-option.wrong { background: #5a2d2d; border-color: #8a4a4a; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .quiz-score { color: var(--accent); font-weight: 600; }
+  .next-btn {
+    margin-top: 16px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    display: none;
+  }
+  .next-btn.show { display: inline-block; }
+
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--panel-2); border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Indian Spices — मसाले</h1>
+  <div class="subtitle">Click any spice to learn its flavor, uses, and how to cook with it.</div>
+  <div class="controls">
+    <input type="search" id="search" placeholder="Search by name (English or Hindi)…" />
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="seed">Seeds</button>
+    <button class="filter-btn" data-filter="powder">Powders</button>
+    <button class="filter-btn" data-filter="whole">Whole</button>
+    <button class="filter-btn" data-filter="leaf">Leaves</button>
+    <button class="filter-btn" data-filter="blend">Blends</button>
+    <span style="flex:1"></span>
+    <button class="mode-btn active" id="learn-mode">📖 Learn</button>
+    <button class="mode-btn" id="quiz-mode">🎯 Quiz</button>
+  </div>
+</header>
+
+<main id="learn-view">
+  <section class="grid-panel">
+    <div class="spice-grid" id="spice-grid"></div>
+  </section>
+  <aside class="detail-panel" id="detail-panel">
+    <div class="detail-empty">Pick a spice from the grid to see flavor profile, uses, and cooking tips.</div>
+  </aside>
+</main>
+
+<div class="quiz-container" id="quiz-view">
+  <div class="quiz-stats">
+    <div>Question <span id="quiz-num">1</span></div>
+    <div class="quiz-score">Score: <span id="quiz-score">0</span></div>
+  </div>
+  <div class="quiz-question">
+    <div class="quiz-emoji" id="quiz-emoji"></div>
+    <div class="quiz-prompt" id="quiz-prompt"></div>
+    <div class="quiz-hint" id="quiz-hint"></div>
+  </div>
+  <div class="quiz-options" id="quiz-options"></div>
+  <div style="text-align:center;">
+    <button class="next-btn" id="next-btn">Next →</button>
+  </div>
+</div>
+
+<script>
+const SPICES = [
+  { id:'turmeric', emoji:'🟡', name:'Turmeric', hindi:'Haldi (हल्दी)', botanical:'Curcuma longa', category:'powder',
+    flavor:'Earthy, mildly bitter, slightly peppery. More about color and aroma than punch.',
+    uses:'The yellow workhorse — added at the start of nearly every curry, dal, and sabzi. Anti-inflammatory; staple of golden milk (haldi doodh).',
+    region:'All of India', heat:0,
+    tip:'Always bloom in hot oil for 10–20 seconds before adding wet ingredients — raw turmeric tastes harsh.',
+    pairs:['cumin','coriander','black pepper','ginger'] },
+
+  { id:'cumin', emoji:'🌰', name:'Cumin Seeds', hindi:'Jeera (जीरा)', botanical:'Cuminum cyminum', category:'seed',
+    flavor:'Warm, smoky, earthy. The sound of a tadka pan starts here.',
+    uses:'Tempered in ghee at the start of dals, curries, rice (jeera rice). Ground into garam masala. Roasted-ground form is sprinkled on raita and chaat.',
+    region:'Pan-Indian, especially North', heat:0,
+    tip:'Heat ghee until a single seed sizzles up — that is the right temperature for tadka.',
+    pairs:['coriander','turmeric','asafoetida','mustard seeds'] },
+
+  { id:'coriander', emoji:'🌿', name:'Coriander Seeds', hindi:'Dhania (धनिया)', botanical:'Coriandrum sativum', category:'seed',
+    flavor:'Citrusy, floral, slightly sweet. Mellow and bright, not hot.',
+    uses:'Ground coriander is the bulk of most curry pastes — gives body and a lemony backbone. Whole seeds go into pickles and wet masalas.',
+    region:'All of India', heat:0,
+    tip:'Toast whole seeds before grinding — the floral notes wake up dramatically.',
+    pairs:['cumin','turmeric','fennel','red chili'] },
+
+  { id:'mustard', emoji:'⚫', name:'Mustard Seeds', hindi:'Rai / Sarson (राई)', botanical:'Brassica spp.', category:'seed',
+    flavor:'Pungent, sharp, nutty when popped in oil.',
+    uses:'Black mustard pops into tadka for South Indian dishes (sambar, rasam, coconut chutneys). Yellow mustard goes into pickles and Bengali fish curries.',
+    region:'South India, Bengal', heat:1,
+    tip:'They MUST pop. Cover the pan — they fly. If you do not hear popping, your oil is too cold.',
+    pairs:['curry leaves','urad dal','asafoetida','dried red chili'] },
+
+  { id:'fenugreek', emoji:'🟫', name:'Fenugreek Seeds', hindi:'Methi (मेथी)', botanical:'Trigonella foenum-graecum', category:'seed',
+    flavor:'Bittersweet, like maple syrup with a bite. Burns easily.',
+    uses:'A pinch in tadka for sambar, kadhi, and pickles. Ground into panch phoron. Sprouted and added to salads.',
+    region:'All of India', heat:0,
+    tip:'Use sparingly — 1/4 teaspoon flavors a whole pot. Burn it and the dish tastes acrid.',
+    pairs:['mustard seeds','asafoetida','turmeric','curry leaves'] },
+
+  { id:'kasuri-methi', emoji:'🍃', name:'Dried Fenugreek Leaves', hindi:'Kasuri Methi (कसूरी मेथी)', botanical:'Trigonella foenum-graecum', category:'leaf',
+    flavor:'Hay-like, slightly bitter, deeply aromatic. The "restaurant flavor" of butter chicken.',
+    uses:'Crushed between palms and stirred into butter chicken, paneer makhani, dal makhani at the end of cooking.',
+    region:'North India, Punjab', heat:0,
+    tip:'Add in the last 2 minutes off heat — long cooking destroys the aroma.',
+    pairs:['garam masala','cream','tomato','ginger'] },
+
+  { id:'curry-leaf', emoji:'🌱', name:'Curry Leaves', hindi:'Kadi Patta (करी पत्ता)', botanical:'Murraya koenigii', category:'leaf',
+    flavor:'Citrusy, nutty, slightly camphor-like. Nothing else replaces it.',
+    uses:'Tempered fresh in oil for South Indian dishes — sambar, rasam, coconut chutney, lemon rice, every chettinad curry.',
+    region:'South India', heat:0,
+    tip:'Use fresh, never dried — dried leaves have almost no flavor. Freeze them if you cannot use them up.',
+    pairs:['mustard seeds','urad dal','asafoetida','coconut'] },
+
+  { id:'cardamom-green', emoji:'🟢', name:'Green Cardamom', hindi:'Elaichi (इलायची)', botanical:'Elettaria cardamomum', category:'whole',
+    flavor:'Sweet, floral, eucalyptus-cool. The queen of spices.',
+    uses:'Whole pods in biryanis, pulaos, kheer, masala chai. Ground into garam masala and desserts.',
+    region:'All of India', heat:0,
+    tip:'Crush the pod lightly so the seeds release flavor but you can still pick out the husk.',
+    pairs:['cinnamon','cloves','saffron','milk'] },
+
+  { id:'cardamom-black', emoji:'🟤', name:'Black Cardamom', hindi:'Badi Elaichi (बड़ी इलायची)', botanical:'Amomum subulatum', category:'whole',
+    flavor:'Smoky, resinous, camphor-like. Dried over open fires — this is where the smoke comes from.',
+    uses:'Savory only — biryanis, garam masala, slow-cooked meat curries, dal makhani.',
+    region:'North India', heat:0,
+    tip:'Never substitute for green cardamom — it would ruin a dessert. Different spice entirely.',
+    pairs:['cinnamon','bay leaf','cloves','black pepper'] },
+
+  { id:'cinnamon', emoji:'🟠', name:'Cinnamon', hindi:'Dalchini (दालचीनी)', botanical:'Cinnamomum verum / cassia', category:'whole',
+    flavor:'Warm, sweet, woody.',
+    uses:'Whole sticks in biryani, pulao, korma. Ground into garam masala and chai masala.',
+    region:'All of India', heat:0,
+    tip:'Indian cooking usually uses cassia (thicker, stronger bark), not the delicate Ceylon cinnamon.',
+    pairs:['cardamom','cloves','bay leaf','black pepper'] },
+
+  { id:'cloves', emoji:'🌑', name:'Cloves', hindi:'Laung (लौंग)', botanical:'Syzygium aromaticum', category:'whole',
+    flavor:'Intense, numbing, sweet-pungent. A little goes a long way.',
+    uses:'Biryanis, pulaos, garam masala, chai. Stuck into onions for curry bases.',
+    region:'All of India', heat:0,
+    tip:'Three or four whole cloves are enough for a 4-person biryani. Ground clove dominates if heavy-handed.',
+    pairs:['cardamom','cinnamon','bay leaf','star anise'] },
+
+  { id:'bay-leaf', emoji:'🍂', name:'Indian Bay Leaf', hindi:'Tej Patta (तेज पत्ता)', botanical:'Cinnamomum tamala', category:'leaf',
+    flavor:'Cinnamon-clove notes — different from Mediterranean bay (which is more eucalyptus).',
+    uses:'Whole leaves in biryanis, pulaos, dal makhani, slow-cooked curries.',
+    region:'North India', heat:0,
+    tip:'Indian bay (tej patta) and Mediterranean bay are NOT the same. Tej patta has visible parallel veins.',
+    pairs:['cinnamon','cloves','black cardamom','cumin'] },
+
+  { id:'asafoetida', emoji:'🟨', name:'Asafoetida', hindi:'Hing (हींग)', botanical:'Ferula assa-foetida', category:'powder',
+    flavor:'Raw: sulfurous and offensive. Cooked: deeply savory, like roasted garlic and onion.',
+    uses:'A pinch in tadka — gives umami depth to lentils and vegetables. Essential where onion/garlic are avoided (Jain, brahmin, fasting cooking).',
+    region:'All of India', heat:0,
+    tip:'Always cook it — 5 seconds in hot oil. Raw hing is awful; cooked hing is magic.',
+    pairs:['cumin','mustard seeds','turmeric','curry leaves'] },
+
+  { id:'red-chili', emoji:'🌶️', name:'Red Chili Powder', hindi:'Lal Mirch (लाल मिर्च)', botanical:'Capsicum annuum', category:'powder',
+    flavor:'Heat plus fruit, depending on variety. Kashmiri = mild and red; regular = hot.',
+    uses:'In nearly every savory dish for heat and color.',
+    region:'All of India', heat:3,
+    tip:'Kashmiri chili powder gives gorgeous red color without melting your face — use it for tikka masala color.',
+    pairs:['turmeric','coriander','cumin','garam masala'] },
+
+  { id:'kashmiri-chili', emoji:'🔴', name:'Kashmiri Chili (Whole)', hindi:'Kashmiri Lal Mirch', botanical:'Capsicum annuum', category:'whole',
+    flavor:'Mild, fruity, sweet. Almost paprika-like.',
+    uses:'Soaked and ground into pastes for vivid red curries (rogan josh, tandoori marinades) without burning heat.',
+    region:'Kashmir, North India', heat:1,
+    tip:'Soak in warm water 15 min, blend into paste — that is the secret to that restaurant-red color.',
+    pairs:['fennel','ginger','garlic','yogurt'] },
+
+  { id:'black-pepper', emoji:'⚫', name:'Black Pepper', hindi:'Kali Mirch (काली मिर्च)', botanical:'Piper nigrum', category:'whole',
+    flavor:'Sharp, woody, citrusy heat — different from chili heat.',
+    uses:'Garam masala, rasam, chai masala, pepper chicken (Chettinad).',
+    region:'South India (Kerala) — native', heat:2,
+    tip:'India is the original source. Grind fresh — pre-ground loses its volatile oils within weeks.',
+    pairs:['cumin','coriander','curry leaves','ginger'] },
+
+  { id:'fennel', emoji:'🌾', name:'Fennel Seeds', hindi:'Saunf (सौंफ)', botanical:'Foeniculum vulgare', category:'seed',
+    flavor:'Sweet, anise-like, cooling.',
+    uses:'Kashmiri and Bengali curries. Panch phoron. Ground into meat masalas. Roasted whole as mukhwas (after-meal mouth freshener).',
+    region:'Kashmir, Bengal, Gujarat', heat:0,
+    tip:'Pair with kashmiri chili — that is the classic rogan josh signature.',
+    pairs:['kashmiri chili','ginger','asafoetida','coriander'] },
+
+  { id:'nigella', emoji:'⚫', name:'Nigella Seeds', hindi:'Kalonji (कलौंजी)', botanical:'Nigella sativa', category:'seed',
+    flavor:'Oniony, slightly bitter, herbal.',
+    uses:'Sprinkled on naan, in panch phoron, in pickles, Bengali fish curries.',
+    region:'Bengal, North India', heat:0,
+    tip:'Often confused with black sesame — kalonji is angular and matte, sesame is flat and glossy.',
+    pairs:['mustard seeds','fenugreek','fennel','cumin'] },
+
+  { id:'ajwain', emoji:'🌿', name:'Carom Seeds', hindi:'Ajwain (अजवाइन)', botanical:'Trachyspermum ammi', category:'seed',
+    flavor:'Like thyme on steroids — sharp, herbal, slightly burning.',
+    uses:'Paratha and puri dough, fried snacks (pakora, samosa), some dals. Famous digestive aid.',
+    region:'North and West India', heat:0,
+    tip:'A pinch in pakora batter is what makes them taste like Indian fritters and not just fried things.',
+    pairs:['asafoetida','red chili','turmeric','salt'] },
+
+  { id:'star-anise', emoji:'⭐', name:'Star Anise', hindi:'Chakra Phool (चक्र फूल)', botanical:'Illicium verum', category:'whole',
+    flavor:'Sweet licorice, warm.',
+    uses:'Biryanis, slow-cooked meat curries, garam masala blends.',
+    region:'North India, Hyderabadi', heat:0,
+    tip:'One whole star is enough for a biryani — too much makes it taste medicinal.',
+    pairs:['cinnamon','cloves','cardamom','bay leaf'] },
+
+  { id:'mace', emoji:'🌸', name:'Mace', hindi:'Javitri (जावित्री)', botanical:'Myristica fragrans (aril)', category:'whole',
+    flavor:'Like nutmeg but more delicate, floral, slightly peppery.',
+    uses:'Mughal-style biryanis, kormas, kheer. The lacy red covering of nutmeg.',
+    region:'Mughlai, North India', heat:0,
+    tip:'Mace and nutmeg come from the same fruit — mace is the outer lacy red layer.',
+    pairs:['nutmeg','cardamom','saffron','rose'] },
+
+  { id:'nutmeg', emoji:'🟤', name:'Nutmeg', hindi:'Jaiphal (जायफल)', botanical:'Myristica fragrans', category:'whole',
+    flavor:'Warm, sweet, woody, slightly nutty.',
+    uses:'A whisper in garam masala and biryani. Also in sweets (kheer, halwa).',
+    region:'Mughlai, North India', heat:0,
+    tip:'Always grate fresh from the whole nut — pre-ground is a different (worse) spice.',
+    pairs:['mace','cardamom','saffron','milk'] },
+
+  { id:'saffron', emoji:'🌼', name:'Saffron', hindi:'Kesar (केसर)', botanical:'Crocus sativus', category:'whole',
+    flavor:'Honeyed, hay-like, floral. Unmistakable.',
+    uses:'Biryanis, kheer, kulfi, ras malai, saffron milk. Color and luxury.',
+    region:'Kashmir', heat:0,
+    tip:'Bloom 10–12 strands in 2 tbsp warm milk for 10 min — never throw dry threads into a dish.',
+    pairs:['cardamom','rose','pistachio','milk'] },
+
+  { id:'amchur', emoji:'🥭', name:'Dried Mango Powder', hindi:'Amchur (अमचूर)', botanical:'Mangifera indica (unripe)', category:'powder',
+    flavor:'Tart, fruity, sour.',
+    uses:'Sprinkled into chaat, samosa filling, chana masala, dry sabzis where you want sourness without liquid.',
+    region:'North India', heat:0,
+    tip:'Use when you want sour without adding water — perfect for dry curries.',
+    pairs:['chaat masala','red chili','black salt','cumin'] },
+
+  { id:'anardana', emoji:'🔴', name:'Pomegranate Seeds (Dried)', hindi:'Anardana (अनारदाना)', botanical:'Punica granatum', category:'seed',
+    flavor:'Sweet-sour, fruity, slightly astringent.',
+    uses:'Stuffed parathas, chaat, chole. Adds sourness and a fruity depth.',
+    region:'North India, Punjab', heat:0,
+    tip:'Pulse-grind just before using — pre-ground loses aroma fast.',
+    pairs:['amchur','chaat masala','cumin','red chili'] },
+
+  { id:'tamarind', emoji:'🟫', name:'Tamarind', hindi:'Imli (इमली)', botanical:'Tamarindus indica', category:'whole',
+    flavor:'Sour, fruity, slightly sweet — a date-like depth.',
+    uses:'Sambar, rasam, vindaloo, chutneys, pad thai (yes, but here we are doing sambar).',
+    region:'South India', heat:0,
+    tip:'Soak a walnut-sized lump in 1/2 cup hot water for 10 min, squeeze, strain — that is your tamarind extract.',
+    pairs:['mustard seeds','curry leaves','jaggery','red chili'] },
+
+  { id:'ginger', emoji:'🫚', name:'Ginger (Dried)', hindi:'Sonth (सोंठ)', botanical:'Zingiber officinale', category:'powder',
+    flavor:'Warmer and more concentrated than fresh — almost peppery.',
+    uses:'Chai masala, sweets (gond ke laddoo), winter tonics.',
+    region:'All of India', heat:1,
+    tip:'Sonth is for winter — Ayurveda treats it as warming for the body.',
+    pairs:['black pepper','cardamom','cinnamon','cloves'] },
+
+  { id:'poppy', emoji:'⚪', name:'White Poppy Seeds', hindi:'Khus Khus (खस खस)', botanical:'Papaver somniferum', category:'seed',
+    flavor:'Mild, nutty, creamy when ground.',
+    uses:'Ground as a thickener for kormas, navratan curries, Bengali aloo posto.',
+    region:'Bengal, Mughlai', heat:0,
+    tip:'Soak 30 min then grind — gives that velvety body to white kormas without flour.',
+    pairs:['cashew','almond','coconut','fennel'] },
+
+  { id:'sesame', emoji:'⚪', name:'Sesame Seeds', hindi:'Til (तिल)', botanical:'Sesamum indicum', category:'seed',
+    flavor:'Nutty, toasty.',
+    uses:'Hyderabadi gravies (baghare baingan), tilkut, gajak, sweets, til ladoo for winter.',
+    region:'Hyderabad, North India', heat:0,
+    tip:'Always toast first — raw sesame is bland.',
+    pairs:['peanuts','tamarind','jaggery','red chili'] },
+
+  { id:'black-salt', emoji:'🧂', name:'Black Salt', hindi:'Kala Namak (काला नमक)', botanical:'(rock salt + sulfur)', category:'powder',
+    flavor:'Eggy, sulfurous, tangy. Tastes like nothing else.',
+    uses:'Chaat masala, raita, fruit chaat, jal jeera. Vegan "egg" flavor in tofu scramble.',
+    region:'North India', heat:0,
+    tip:'Add at the end — heat dulls its signature aroma.',
+    pairs:['amchur','cumin','mint','black pepper'] },
+
+  // Blends
+  { id:'garam-masala', emoji:'🥘', name:'Garam Masala', hindi:'गरम मसाला', botanical:'(blend)', category:'blend',
+    flavor:'Warm, aromatic, complex. "Hot" not in chili sense — in warming-spice sense.',
+    uses:'Sprinkled near the end of cooking on curries, dals, meat dishes. Every household has its own recipe.',
+    region:'North India', heat:0,
+    tip:'Add in the last 2 minutes — long cooking dulls the volatile aromatics.',
+    pairs:['onion','tomato','ginger','garlic'] },
+
+  { id:'panch-phoron', emoji:'🥄', name:'Panch Phoron', hindi:'পাঁচ ফোড়ন', botanical:'(blend)', category:'blend',
+    flavor:'A 5-seed Bengali tempering: cumin, fennel, mustard, fenugreek, nigella in equal parts.',
+    uses:'Tempered whole in mustard oil for Bengali dals, fish curries, vegetable dishes.',
+    region:'Bengal, Eastern India', heat:0,
+    tip:'Heat mustard oil to smoking point first, cool slightly, then add panch phoron — Bengali rule.',
+    pairs:['mustard oil','dried red chili','turmeric'] },
+
+  { id:'sambar-podi', emoji:'🥄', name:'Sambar Powder', hindi:'Sambar Podi', botanical:'(blend)', category:'blend',
+    flavor:'Toasted dals + coriander, fenugreek, chili, asafoetida, curry leaf — savory, slightly bitter, deep.',
+    uses:'The defining spice of sambar. Also in vegetable side dishes.',
+    region:'South India', heat:2,
+    tip:'Each Tamil/Karnataka/Kerala family has its own ratio. Toast and grind fresh for best results.',
+    pairs:['tamarind','toor dal','curry leaves','mustard seeds'] },
+
+  { id:'rasam-podi', emoji:'🥄', name:'Rasam Powder', hindi:'Rasam Podi', botanical:'(blend)', category:'blend',
+    flavor:'Pepper-forward, with cumin, coriander, dal, chili.',
+    uses:'Rasam — that thin, peppery tamarind soup served with rice.',
+    region:'South India', heat:2,
+    tip:'Heavier on pepper than sambar powder — that is the whole point.',
+    pairs:['tamarind','tomato','curry leaves','garlic'] },
+
+  { id:'chaat-masala', emoji:'🥄', name:'Chaat Masala', hindi:'चाट मसाला', botanical:'(blend)', category:'blend',
+    flavor:'Tangy, salty, sulfurous. Black salt + amchur + cumin + mint + asafoetida + chili.',
+    uses:'Sprinkled on street snacks (pani puri, bhel, papdi chaat), fruit, raita, grilled meats.',
+    region:'North India', heat:1,
+    tip:'Finishing spice only — never cook it. Heat ruins the kala namak.',
+    pairs:['mint','tamarind','onion','lemon'] },
+
+  { id:'tandoori-masala', emoji:'🥄', name:'Tandoori Masala', hindi:'तंदूरी मसाला', botanical:'(blend)', category:'blend',
+    flavor:'Smoky, warm, kashmiri-red. Cumin, coriander, paprika, kashmiri chili, cardamom, ginger, garlic.',
+    uses:'Yogurt-based marinades for tandoori chicken, paneer tikka, fish tikka.',
+    region:'Punjab, North India', heat:1,
+    tip:'Marinate at least 4 hours, ideally overnight — the yogurt does the tenderizing work.',
+    pairs:['yogurt','ginger','garlic','lemon'] },
+
+  { id:'goda-masala', emoji:'🥄', name:'Goda Masala', hindi:'गोडा मसाला', botanical:'(blend)', category:'blend',
+    flavor:'Dark, slightly sweet, smoky. Coconut, sesame, coriander, cumin, cinnamon, dagad phool (stone flower).',
+    uses:'Maharashtrian dishes — usal, masale bhat, amti.',
+    region:'Maharashtra', heat:1,
+    tip:'"Goda" means sweet in Marathi — but it is sweet only in contrast to fierier blends.',
+    pairs:['coconut','jaggery','tamarind','peanuts'] },
+];
+
+const CATEGORY_LABELS = {
+  seed: 'Seed', powder: 'Powder', whole: 'Whole spice', leaf: 'Leaf', blend: 'Blend'
+};
+
+const grid = document.getElementById('spice-grid');
+const detail = document.getElementById('detail-panel');
+const search = document.getElementById('search');
+let activeFilter = 'all';
+let selectedId = null;
+
+function renderGrid() {
+  const q = search.value.trim().toLowerCase();
+  grid.innerHTML = '';
+  const filtered = SPICES.filter(s => {
+    if (activeFilter !== 'all' && s.category !== activeFilter) return false;
+    if (!q) return true;
+    return (s.name + ' ' + s.hindi + ' ' + s.botanical).toLowerCase().includes(q);
+  });
+  if (!filtered.length) {
+    grid.innerHTML = '<div style="color:var(--muted); padding: 20px;">No spices match.</div>';
+    return;
+  }
+  filtered.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'spice-card' + (s.id === selectedId ? ' selected' : '');
+    card.innerHTML = `
+      ${s.heat > 0 ? `<div class="heat-dots">${'●'.repeat(s.heat)}</div>` : ''}
+      <div class="spice-emoji">${s.emoji}</div>
+      <div class="spice-name">${s.name}</div>
+      <div class="spice-hindi">${s.hindi}</div>
+    `;
+    card.addEventListener('click', () => selectSpice(s.id));
+    grid.appendChild(card);
+  });
+}
+
+function selectSpice(id) {
+  selectedId = id;
+  const s = SPICES.find(x => x.id === id);
+  document.querySelectorAll('.spice-card').forEach(c => c.classList.remove('selected'));
+  const cards = grid.querySelectorAll('.spice-card');
+  cards.forEach(c => {
+    if (c.querySelector('.spice-name').textContent === s.name) c.classList.add('selected');
+  });
+  const heatHTML = `<span class="heat-meter">${[0,1,2,3,4].map(i => `<span class="${i < s.heat ? 'on' : ''}"></span>`).join('')}</span>`;
+  detail.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-emoji">${s.emoji}</div>
+      <div class="detail-title">
+        <h2>${s.name}</h2>
+        <div class="hindi">${s.hindi}</div>
+        <div class="botanical">${s.botanical} · ${CATEGORY_LABELS[s.category]}</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h3>Flavor</h3>
+      <p>${s.flavor}</p>
+    </div>
+    <div class="detail-section">
+      <h3>How it's used</h3>
+      <p>${s.uses}</p>
+    </div>
+    <div class="detail-section">
+      <h3>Cooking tip</h3>
+      <p>${s.tip}</p>
+    </div>
+    <div class="detail-section">
+      <h3>Region</h3>
+      <p>${s.region}</p>
+    </div>
+    <div class="detail-section">
+      <h3>Heat level</h3>
+      <p>${heatHTML} ${s.heat === 0 ? '<span style="color:var(--muted); margin-left:8px;">aromatic, not spicy</span>' : ''}</p>
+    </div>
+    <div class="detail-section">
+      <h3>Pairs well with</h3>
+      <div class="tags">${s.pairs.map(p => `<span class="tag">${p}</span>`).join('')}</div>
+    </div>
+  `;
+}
+
+search.addEventListener('input', renderGrid);
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    renderGrid();
+  });
+});
+
+// Mode toggle
+const learnView = document.getElementById('learn-view');
+const quizView = document.getElementById('quiz-view');
+const learnBtn = document.getElementById('learn-mode');
+const quizBtn = document.getElementById('quiz-mode');
+
+learnBtn.addEventListener('click', () => {
+  learnBtn.classList.add('active'); quizBtn.classList.remove('active');
+  learnView.style.display = 'grid';
+  quizView.classList.remove('active');
+});
+quizBtn.addEventListener('click', () => {
+  quizBtn.classList.add('active'); learnBtn.classList.remove('active');
+  learnView.style.display = 'none';
+  quizView.classList.add('active');
+  startQuiz();
+});
+
+// Quiz
+let quizScore = 0;
+let quizNum = 0;
+let currentQuiz = null;
+
+function shuffle(a) { return a.slice().sort(() => Math.random() - 0.5); }
+
+function startQuiz() {
+  quizScore = 0; quizNum = 0;
+  document.getElementById('quiz-score').textContent = quizScore;
+  nextQuestion();
+}
+
+function nextQuestion() {
+  quizNum++;
+  document.getElementById('quiz-num').textContent = quizNum;
+  document.getElementById('next-btn').classList.remove('show');
+  const correct = SPICES[Math.floor(Math.random() * SPICES.length)];
+  const wrong = shuffle(SPICES.filter(s => s.id !== correct.id)).slice(0, 3);
+  const options = shuffle([correct, ...wrong]);
+  currentQuiz = correct.id;
+
+  const questionTypes = ['emoji-to-name', 'hindi-to-name', 'flavor-to-name'];
+  const qt = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+
+  const emojiEl = document.getElementById('quiz-emoji');
+  const promptEl = document.getElementById('quiz-prompt');
+  const hintEl = document.getElementById('quiz-hint');
+
+  if (qt === 'emoji-to-name') {
+    emojiEl.textContent = correct.emoji;
+    promptEl.textContent = 'Which spice is this?';
+    hintEl.textContent = `Hint: ${CATEGORY_LABELS[correct.category]}`;
+  } else if (qt === 'hindi-to-name') {
+    emojiEl.textContent = '🇮🇳';
+    promptEl.textContent = correct.hindi;
+    hintEl.textContent = 'What is the English name?';
+  } else {
+    emojiEl.textContent = '👅';
+    promptEl.textContent = correct.flavor;
+    hintEl.textContent = 'Which spice tastes like this?';
+  }
+
+  const optsEl = document.getElementById('quiz-options');
+  optsEl.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt.name;
+    btn.addEventListener('click', () => answerQuiz(opt.id, btn));
+    optsEl.appendChild(btn);
+  });
+}
+
+function answerQuiz(id, btn) {
+  const buttons = document.querySelectorAll('.quiz-option');
+  buttons.forEach(b => {
+    b.disabled = true;
+    if (b.textContent === SPICES.find(s => s.id === currentQuiz).name) b.classList.add('correct');
+  });
+  if (id === currentQuiz) {
+    quizScore++;
+    document.getElementById('quiz-score').textContent = quizScore;
+  } else {
+    btn.classList.add('wrong');
+  }
+  document.getElementById('next-btn').classList.add('show');
+}
+
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+
+// Initial render
+renderGrid();
+selectSpice('turmeric');
+</script>
+</body>
+</html>
