@@ -1,0 +1,1444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Delray Dispatch — A Visitor's Bulletin from the Village by the Sea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Hanken+Grotesk:wght@300..800&family=JetBrains+Mono:wght@300..700&family=Caveat:wght@500..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sand:#F1E7D2;
+  --sand-2:#E9DDC2;
+  --cream:#F8F1E0;
+  --ink:#1B130C;
+  --ink-soft:#3A2B1E;
+  --ocean:#0E4754;
+  --ocean-2:#0B2F38;
+  --ocean-light:#2E7080;
+  --coral:#D85230;
+  --coral-deep:#A33A1E;
+  --sun:#E5A52A;
+  --sun-deep:#C28614;
+  --blush:#E8B59C;
+  --foam:#CDDDD3;
+  --rule:#2B1F15;
+  --paper-edge:rgba(43,31,21,.18);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Hanken Grotesk", system-ui, sans-serif;
+  background:
+    radial-gradient(1200px 700px at 88% -10%, rgba(229,165,42,.35), transparent 60%),
+    radial-gradient(900px 600px at -5% 110%, rgba(14,71,84,.18), transparent 60%),
+    radial-gradient(700px 500px at 50% 50%, rgba(232,181,156,.18), transparent 70%),
+    var(--sand);
+  color:var(--ink);
+  min-height:100vh;
+  font-feature-settings:"ss01","cv11","ss03";
+  letter-spacing:.005em;
+  overflow-x:hidden;
+}
+
+/* paper grain overlay */
+body::before{
+  content:"";
+  position:fixed; inset:0; pointer-events:none; z-index:1000;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 .15 0 0 0 0 .1 0 0 0 0 .05 0 0 0 .14 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode:multiply;
+  opacity:.55;
+}
+
+/* vignette */
+body::after{
+  content:"";
+  position:fixed; inset:0; pointer-events:none; z-index:999;
+  background:radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(43,31,21,.18) 100%);
+}
+
+.shell{
+  max-width:1420px;
+  margin:0 auto;
+  padding:34px 44px 80px;
+  position:relative;
+  z-index:2;
+}
+
+/* ─── MASTHEAD ─────────────────────────────────────────── */
+.masthead{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:end;
+  gap:22px;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:14px;
+}
+.mast-left, .mast-right{
+  font-family:"JetBrains Mono", monospace;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  line-height:1.5;
+}
+.mast-right{text-align:right}
+.mast-left .stamp,
+.mast-right .stamp{
+  display:inline-block;
+  border:1.5px solid var(--ink);
+  padding:3px 8px;
+  border-radius:2px;
+  letter-spacing:.18em;
+  color:var(--ink);
+  background:rgba(248,241,224,.5);
+}
+.title{
+  text-align:center;
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 144, "SOFT" 60, "WONK" 1, "wght" 460;
+  font-size:clamp(56px, 9vw, 132px);
+  line-height:.84;
+  letter-spacing:-.025em;
+  margin:0;
+  color:var(--ink);
+  white-space:nowrap;
+}
+.title em{
+  font-style:italic;
+  font-variation-settings:"opsz" 144, "SOFT" 100, "WONK" 1, "wght" 360;
+  color:var(--coral);
+}
+.subtitle{
+  margin-top:10px;
+  display:flex;
+  justify-content:space-between;
+  font-family:"Fraunces", serif;
+  font-style:italic;
+  font-size:14px;
+  color:var(--ink-soft);
+  padding:0 4px;
+  border-top:1px solid var(--ink);
+  border-bottom:3px double var(--ink);
+  padding-top:8px;
+  padding-bottom:8px;
+}
+.subtitle span:nth-child(2){
+  font-family:"JetBrains Mono", monospace;
+  font-style:normal;
+  letter-spacing:.18em;
+  font-size:11px;
+  text-transform:uppercase;
+}
+
+/* ─── LIVE BAR ─────────────────────────────────────────── */
+.live-bar{
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  gap:22px;
+  font-family:"JetBrains Mono", monospace;
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  padding-bottom:18px;
+  border-bottom:1px solid var(--paper-edge);
+  flex-wrap:wrap;
+}
+.live-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--coral);
+  box-shadow:0 0 0 4px rgba(216,82,48,.18);
+  animation:pulse 1.6s infinite ease-in-out;
+}
+@keyframes pulse{
+  0%,100%{opacity:1; transform:scale(1)}
+  50%{opacity:.5; transform:scale(.85)}
+}
+.live-bar .sep{opacity:.4}
+.live-bar strong{color:var(--ink); font-weight:600; letter-spacing:.16em}
+
+/* ─── GRID SYSTEM ──────────────────────────────────────── */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12, 1fr);
+  gap:22px;
+  margin-top:28px;
+}
+
+.card{
+  background:var(--cream);
+  border:1px solid var(--ink);
+  border-radius:3px;
+  padding:22px;
+  position:relative;
+  box-shadow:
+    2px 3px 0 var(--ink),
+    6px 8px 0 -2px rgba(27,19,12,.08);
+}
+.card.dark{
+  background:var(--ocean);
+  color:#F1E7D2;
+  border-color:var(--ocean-2);
+  box-shadow:
+    2px 3px 0 var(--ocean-2),
+    6px 8px 0 -2px rgba(11,47,56,.18);
+}
+.card.coral{
+  background:var(--coral);
+  color:#FAEDD8;
+  border-color:var(--coral-deep);
+  box-shadow:
+    2px 3px 0 var(--coral-deep),
+    6px 8px 0 -2px rgba(163,58,30,.18);
+}
+.card.sun{
+  background:var(--sun);
+  color:var(--ink);
+  border-color:var(--sun-deep);
+  box-shadow:
+    2px 3px 0 var(--sun-deep),
+    6px 8px 0 -2px rgba(194,134,20,.18);
+}
+
+.k{
+  font-family:"JetBrains Mono", monospace;
+  font-size:10px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  opacity:.75;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+.k::after{
+  content:"";
+  flex:1; margin-left:10px;
+  border-bottom:1px dotted currentColor;
+  opacity:.5;
+}
+.k > span:last-child{
+  margin-left:10px;
+  opacity:.6;
+}
+
+/* ─── HERO WEATHER ─────────────────────────────────────── */
+.hero{ grid-column: span 7; min-height:380px; position:relative; overflow:hidden}
+.hero .num{
+  position:absolute; top:18px; right:22px;
+  font-family:"Fraunces", serif;
+  font-style:italic;
+  font-size:14px;
+  color:var(--ink-soft);
+}
+.hero-body{ display:grid; grid-template-columns:1.2fr 1fr; gap:18px; align-items:flex-end; min-height:300px;}
+.temp{
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 144, "SOFT" 80, "WONK" 1, "wght" 380;
+  font-size:clamp(120px, 16vw, 230px);
+  line-height:.78;
+  letter-spacing:-.04em;
+  color:var(--ink);
+  margin-bottom:-12px;
+}
+.temp sup{
+  font-size:.32em;
+  font-weight:300;
+  vertical-align:top;
+  margin-left:4px;
+  color:var(--coral);
+  font-variation-settings:"opsz" 144, "wght" 300;
+}
+.cond{
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 14, "wght" 500;
+  font-style:italic;
+  font-size:22px;
+  line-height:1.15;
+  margin:8px 0 0;
+  color:var(--ink);
+}
+.cond small{
+  display:block;
+  font-style:normal;
+  font-family:"Hanken Grotesk", sans-serif;
+  font-size:13px;
+  letter-spacing:.04em;
+  margin-top:8px;
+  color:var(--ink-soft);
+}
+.hero-meta{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:10px 16px;
+  font-family:"JetBrains Mono", monospace;
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.hero-meta div{
+  border-top:1px solid var(--ink);
+  padding-top:6px;
+}
+.hero-meta div b{
+  display:block;
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 14, "wght" 600;
+  font-size:24px;
+  letter-spacing:0;
+  text-transform:none;
+  margin-top:2px;
+  color:var(--ink);
+}
+
+/* sun rays decoration */
+.rays{
+  position:absolute;
+  right:-120px; top:-120px;
+  width:380px; height:380px;
+  pointer-events:none;
+  animation:spin 60s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── BEACH CARD ───────────────────────────────────────── */
+.beach{ grid-column: span 5; min-height:380px}
+.beach-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:8px;
+}
+.bx{
+  border-top:1px solid currentColor;
+  padding-top:8px;
+}
+.bx .lbl{
+  font-family:"JetBrains Mono", monospace;
+  font-size:10px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  opacity:.7;
+}
+.bx .val{
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 60, "wght" 500;
+  font-size:38px;
+  line-height:1;
+  margin-top:4px;
+  letter-spacing:-.02em;
+}
+.bx .val sup{
+  font-size:.45em;
+  vertical-align:top;
+  margin-left:2px;
+  opacity:.8;
+}
+.bx .note{
+  font-family:"Hanken Grotesk", sans-serif;
+  font-size:11px;
+  margin-top:6px;
+  opacity:.75;
+  line-height:1.35;
+}
+.bx .bar{
+  margin-top:6px;
+  height:6px;
+  background:rgba(241,231,210,.18);
+  border-radius:99px;
+  overflow:hidden;
+}
+.bx .bar i{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg, var(--sun), var(--coral));
+  border-radius:99px;
+  transform-origin:left;
+  animation:grow 1.8s cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes grow{from{transform:scaleX(0)} to{transform:scaleX(1)}}
+
+.flag{
+  display:inline-block;
+  padding:3px 10px;
+  font-family:"JetBrains Mono", monospace;
+  font-size:10px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  background:var(--sun);
+  color:var(--ink);
+  border-radius:2px;
+  border:1px solid rgba(0,0,0,.2);
+  margin-top:14px;
+}
+.flag.green{background:#5BA66A; color:#FBF6E9}
+.flag.red{background:var(--coral); color:#FBF6E9}
+
+/* ─── TIDE CHART ───────────────────────────────────────── */
+.tide{
+  grid-column: span 12;
+  padding:24px 28px;
+  background:var(--cream);
+  border:1px solid var(--ink);
+  border-radius:3px;
+  position:relative;
+}
+.tide-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+  gap:14px;
+}
+.tide-head h3{
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 60, "SOFT" 40, "WONK" 1, "wght" 500;
+  font-style:italic;
+  font-size:34px;
+  margin:0;
+  letter-spacing:-.01em;
+}
+.tide-head .events{
+  display:flex; gap:18px;
+  font-family:"JetBrains Mono", monospace;
+  font-size:11px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.tide-head .events div b{
+  display:block;
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 14, "wght" 600;
+  font-size:18px;
+  letter-spacing:0;
+  text-transform:none;
+  color:var(--coral);
+}
+.tide-svg{ width:100%; height:140px; display:block}
+.tide-svg .curve{
+  fill:none;
+  stroke:var(--ocean);
+  stroke-width:2.5;
+  stroke-linecap:round;
+  stroke-dasharray:1400;
+  stroke-dashoffset:1400;
+  animation:draw 2.2s ease-out .3s forwards;
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+.tide-svg .fill{fill:rgba(14,71,84,.15)}
+.tide-svg .now-line{ stroke:var(--coral); stroke-width:1.5; stroke-dasharray:4 4}
+.tide-svg .now-dot{ fill:var(--coral); }
+.tide-svg text{
+  font-family:"JetBrains Mono", monospace;
+  font-size:9px;
+  fill:var(--ink-soft);
+  letter-spacing:.08em;
+}
+
+/* ─── SECTION HEADER ───────────────────────────────────── */
+.section-head{
+  grid-column:span 12;
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin:36px 0 -2px;
+  padding-bottom:8px;
+  border-bottom:2px solid var(--ink);
+}
+.section-head h2{
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 144, "SOFT" 50, "WONK" 1, "wght" 500;
+  font-size:clamp(36px, 4.5vw, 64px);
+  line-height:.9;
+  margin:0;
+  letter-spacing:-.02em;
+}
+.section-head h2 em{
+  font-style:italic;
+  font-variation-settings:"opsz" 144, "SOFT" 100, "WONK" 1, "wght" 380;
+  color:var(--coral);
+}
+.section-head .meta{
+  font-family:"JetBrains Mono", monospace;
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  text-align:right;
+}
+
+/* ─── ATLANTIC AVE LISTINGS ────────────────────────────── */
+.listing{
+  grid-column:span 4;
+  background:var(--cream);
+  border:1px solid var(--ink);
+  border-radius:3px;
+  padding:18px;
+  display:flex; flex-direction:column;
+  position:relative;
+  transition:transform .25s ease, box-shadow .25s ease;
+  box-shadow:
+    2px 3px 0 var(--ink),
+    6px 8px 0 -2px rgba(27,19,12,.08);
+}
+.listing:hover{
+  transform:translate(-2px, -3px);
+  box-shadow:
+    4px 6px 0 var(--ink),
+    10px 12px 0 -2px rgba(27,19,12,.1);
+}
+.listing .cat{
+  font-family:"JetBrains Mono", monospace;
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--coral);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.listing .cat .price{ color:var(--ink-soft) }
+.listing h4{
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 60, "SOFT" 30, "WONK" 1, "wght" 500;
+  font-size:30px;
+  margin:8px 0 4px;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+.listing .blurb{
+  font-family:"Fraunces", serif;
+  font-style:italic;
+  font-size:15px;
+  line-height:1.4;
+  color:var(--ink-soft);
+  margin:4px 0 12px;
+}
+.listing .meta-row{
+  margin-top:auto;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  font-family:"JetBrains Mono", monospace;
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  padding-top:10px;
+  border-top:1px dotted var(--rule);
+}
+.listing .wait{
+  color:var(--ocean);
+  font-weight:700;
+}
+.listing .wait.hot{ color:var(--coral) }
+.listing .stars{
+  font-family:"Fraunces", serif;
+  letter-spacing:1px;
+  color:var(--sun-deep);
+}
+
+/* ─── EVENTS MARQUEE ───────────────────────────────────── */
+.marquee-wrap{
+  grid-column:span 12;
+  background:var(--ink);
+  color:var(--sand);
+  border-radius:3px;
+  overflow:hidden;
+  border:1px solid var(--ink);
+  position:relative;
+  padding:14px 0;
+}
+.marquee-wrap::before, .marquee-wrap::after{
+  content:""; position:absolute; top:0; bottom:0; width:60px; z-index:3; pointer-events:none;
+}
+.marquee-wrap::before{ left:0; background:linear-gradient(90deg, var(--ink), transparent)}
+.marquee-wrap::after{ right:0; background:linear-gradient(-90deg, var(--ink), transparent)}
+.marquee{
+  display:flex; gap:60px;
+  animation:scroll 50s linear infinite;
+  width:max-content;
+  white-space:nowrap;
+}
+.marquee-wrap:hover .marquee{ animation-play-state:paused }
+.marquee span{
+  font-family:"Fraunces", serif;
+  font-style:italic;
+  font-variation-settings:"opsz" 60, "SOFT" 40, "WONK" 1, "wght" 400;
+  font-size:24px;
+  display:inline-flex;
+  align-items:center;
+  gap:12px;
+}
+.marquee span::before{
+  content:"✦";
+  color:var(--sun);
+  font-style:normal;
+  font-size:14px;
+}
+.marquee b{
+  color:var(--sun);
+  font-family:"JetBrains Mono", monospace;
+  font-size:11px;
+  letter-spacing:.18em;
+  margin-right:8px;
+  font-weight:500;
+}
+@keyframes scroll{
+  to{ transform:translateX(-50%) }
+}
+
+/* ─── PARKING ──────────────────────────────────────────── */
+.parking{ grid-column: span 7}
+.park-list{
+  display:flex; flex-direction:column;
+  gap:14px;
+  margin-top:6px;
+}
+.park-row{
+  display:grid;
+  grid-template-columns: 1.6fr 1fr 1.2fr auto;
+  gap:14px;
+  align-items:center;
+  padding-bottom:10px;
+  border-bottom:1px dotted var(--rule);
+}
+.park-row:last-child{border-bottom:none}
+.park-row .name{
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 60, "SOFT" 30, "WONK" 1, "wght" 500;
+  font-size:22px;
+  letter-spacing:-.01em;
+  line-height:1.1;
+}
+.park-row .name small{
+  display:block;
+  font-family:"JetBrains Mono", monospace;
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  font-weight:400;
+  margin-top:2px;
+}
+.park-row .bar{
+  height:14px;
+  background:var(--sand-2);
+  border:1px solid var(--rule);
+  border-radius:2px;
+  overflow:hidden;
+  position:relative;
+}
+.park-row .bar i{
+  display:block; height:100%;
+  background:repeating-linear-gradient(45deg, var(--ocean) 0 6px, var(--ocean-light) 6px 12px);
+  transform-origin:left;
+  animation:grow 1.6s cubic-bezier(.2,.7,.2,1) both;
+}
+.park-row .bar i.low{
+  background:repeating-linear-gradient(45deg, var(--sun) 0 6px, var(--sun-deep) 6px 12px);
+}
+.park-row .bar i.full{
+  background:repeating-linear-gradient(45deg, var(--coral) 0 6px, var(--coral-deep) 6px 12px);
+}
+.park-row .count{
+  font-family:"JetBrains Mono", monospace;
+  font-size:12px;
+  letter-spacing:.06em;
+  color:var(--ink-soft);
+}
+.park-row .count b{
+  display:block;
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 60, "wght" 500;
+  font-size:24px;
+  letter-spacing:-.01em;
+  color:var(--ink);
+}
+.park-row .rate{
+  font-family:"Fraunces", serif;
+  font-style:italic;
+  font-size:14px;
+  color:var(--ink-soft);
+  text-align:right;
+  white-space:nowrap;
+}
+.park-row .rate b{
+  font-style:normal;
+  font-family:"JetBrains Mono", monospace;
+  font-size:13px;
+  color:var(--ink);
+  letter-spacing:.04em;
+}
+
+/* ─── TROLLEY CARD ─────────────────────────────────────── */
+.trolley{ grid-column:span 5; padding:0; overflow:hidden}
+.trolley-head{
+  padding:22px 22px 18px;
+}
+.trolley h3{
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 144, "SOFT" 60, "WONK" 1, "wght" 480;
+  font-size:42px;
+  line-height:.92;
+  margin:0;
+  letter-spacing:-.02em;
+}
+.trolley h3 em{
+  font-style:italic;
+  font-variation-settings:"opsz" 144, "SOFT" 100, "WONK" 1, "wght" 380;
+  color:var(--sun);
+}
+.trolley .free{
+  font-family:"JetBrains Mono", monospace;
+  font-size:10px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  background:var(--sun);
+  color:var(--ink);
+  border-radius:2px;
+  padding:4px 9px;
+  display:inline-block;
+  margin-top:8px;
+}
+.trolley .route{
+  padding:0 22px;
+}
+.route-line{
+  position:relative;
+  margin:8px 0 14px;
+}
+.route-line::before{
+  content:""; position:absolute;
+  left:6px; top:8px; bottom:8px;
+  width:2px;
+  background:repeating-linear-gradient(var(--sun) 0 4px, transparent 4px 8px);
+}
+.stop{
+  display:grid;
+  grid-template-columns:24px 1fr auto;
+  align-items:center;
+  gap:12px;
+  padding:5px 0;
+  font-family:"Fraunces", serif;
+  font-size:16px;
+  font-style:italic;
+  line-height:1.1;
+}
+.stop::before{
+  content:"";
+  width:14px; height:14px;
+  border-radius:50%;
+  background:var(--ocean);
+  border:2px solid var(--sun);
+  z-index:1;
+}
+.stop.now::before{
+  background:var(--coral);
+  box-shadow:0 0 0 4px rgba(216,82,48,.4);
+  animation:pulse 1.6s infinite;
+}
+.stop .eta{
+  font-family:"JetBrains Mono", monospace;
+  font-style:normal;
+  font-size:11px;
+  color:var(--sun);
+  letter-spacing:.08em;
+}
+.trolley-foot{
+  background:var(--ocean-2);
+  padding:14px 22px;
+  font-family:"JetBrains Mono", monospace;
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  display:flex; justify-content:space-between;
+  color:var(--foam);
+}
+
+/* ─── DAYTRIPS ─────────────────────────────────────────── */
+.trip{
+  grid-column:span 4;
+  border:1px solid var(--ink);
+  border-radius:3px;
+  padding:20px;
+  background:var(--cream);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:200px;
+  transition:transform .25s ease;
+}
+.trip:hover{ transform:translateY(-3px) }
+.trip .badge{
+  position:absolute; top:-10px; right:16px;
+  background:var(--coral);
+  color:var(--sand);
+  font-family:"JetBrains Mono", monospace;
+  font-size:9px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  padding:4px 8px;
+  border-radius:2px;
+  border:1px solid var(--coral-deep);
+}
+.trip h4{
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 60, "SOFT" 30, "WONK" 1, "wght" 500;
+  font-size:28px;
+  margin:0;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+.trip h4 em{
+  font-style:italic; color:var(--coral);
+  font-variation-settings:"opsz" 60, "SOFT" 80, "WONK" 1, "wght" 400;
+}
+.trip p{
+  font-family:"Fraunces", serif;
+  font-style:italic;
+  font-size:14.5px;
+  line-height:1.45;
+  margin:0;
+  color:var(--ink-soft);
+}
+.trip .facts{
+  margin-top:auto;
+  display:flex; gap:12px; flex-wrap:wrap;
+  padding-top:10px;
+  border-top:1px dotted var(--rule);
+  font-family:"JetBrains Mono", monospace;
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+.trip .facts span{
+  display:inline-flex; align-items:center; gap:5px;
+}
+.trip .facts b{ color:var(--ink); font-weight:600 }
+
+/* ─── PULL QUOTE ───────────────────────────────────────── */
+.quote{
+  grid-column:span 12;
+  margin:34px 0 4px;
+  text-align:center;
+  padding:30px 60px;
+  position:relative;
+}
+.quote::before, .quote::after{
+  content:"";
+  position:absolute; top:50%;
+  width:80px; height:1px;
+  background:var(--ink);
+}
+.quote::before{ left:0 }
+.quote::after{ right:0 }
+.quote blockquote{
+  margin:0;
+  font-family:"Fraunces", serif;
+  font-variation-settings:"opsz" 144, "SOFT" 80, "WONK" 1, "wght" 380;
+  font-style:italic;
+  font-size:clamp(28px, 3.6vw, 50px);
+  line-height:1.1;
+  letter-spacing:-.015em;
+  color:var(--ink);
+}
+.quote blockquote span{ color:var(--coral) }
+.quote cite{
+  display:block;
+  margin-top:14px;
+  font-family:"JetBrains Mono", monospace;
+  font-size:11px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  font-style:normal;
+}
+
+/* ─── CALLOUT NOTE (handwritten) ───────────────────────── */
+.note-hw{
+  font-family:"Caveat", cursive;
+  color:var(--coral);
+  font-size:20px;
+  line-height:1.1;
+  transform:rotate(-2.5deg);
+  position:absolute;
+  pointer-events:none;
+}
+
+/* ─── COLOPHON ─────────────────────────────────────────── */
+.colophon{
+  margin-top:44px;
+  padding-top:18px;
+  border-top:3px double var(--ink);
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:24px;
+  font-family:"JetBrains Mono", monospace;
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  line-height:1.7;
+}
+.colophon b{
+  font-family:"Fraunces", serif;
+  font-style:italic;
+  text-transform:none;
+  letter-spacing:0;
+  font-size:14px;
+  color:var(--ink);
+  display:block;
+  margin-bottom:6px;
+}
+.signoff{
+  grid-column:1/-1;
+  text-align:center;
+  margin-top:24px;
+  font-family:"Fraunces", serif;
+  font-style:italic;
+  font-variation-settings:"opsz" 144, "SOFT" 100, "WONK" 1, "wght" 360;
+  font-size:36px;
+  color:var(--ink);
+}
+.signoff span{ color:var(--coral) }
+
+/* ─── DOTTED DIVIDER ───────────────────────────────────── */
+.divider{
+  grid-column:span 12;
+  height:1px;
+  border-top:1px dotted var(--rule);
+  margin:8px 0;
+}
+
+/* ─── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 1000px){
+  .shell{ padding:24px 22px 60px }
+  .hero, .beach, .parking, .trolley{ grid-column:span 12 }
+  .listing, .trip{ grid-column: span 6 }
+  .park-row{ grid-template-columns: 1fr; gap:6px}
+  .park-row .rate{ text-align:left }
+}
+@media (max-width: 620px){
+  .hero-body{ grid-template-columns:1fr }
+  .listing, .trip{ grid-column: span 12 }
+  .title{ font-size:54px }
+  .colophon{ grid-template-columns:1fr 1fr }
+  .masthead{ grid-template-columns:1fr; text-align:center; gap:8px}
+  .mast-right{ text-align:center }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ─── MASTHEAD ─────────────────────────────────── -->
+  <header class="masthead">
+    <div class="mast-left">
+      <span class="stamp">No. CCXVII · Vol. 7</span><br>
+      <span style="margin-top:6px; display:inline-block">Established beneath the<br>banyan trees · MCMXCV</span>
+    </div>
+    <h1 class="title">The Delray <em>Dispatch</em></h1>
+    <div class="mast-right">
+      <span class="stamp">26°27′N · 80°04′W</span><br>
+      <span style="margin-top:6px; display:inline-block">A visitor's bulletin for the<br>Village by the Sea</span>
+    </div>
+  </header>
+
+  <div class="subtitle">
+    <span>Atlantic Avenue · Pineapple Grove · Ocean Boulevard &amp; thereabouts</span>
+    <span id="todayDate">Thursday · 21 May 2026</span>
+    <span style="font-style:italic">"Most Fun Small Town in America"</span>
+  </div>
+
+  <!-- ─── LIVE BAR ─────────────────────────────────── -->
+  <div class="live-bar">
+    <span class="live-dot"></span>
+    <span><strong>Live</strong> · Updated <span id="updatedAt">2:47 PM EST</span></span>
+    <span class="sep">|</span>
+    <span>Sunrise <strong>6:31</strong> · Sunset <strong>8:04</strong></span>
+    <span class="sep">|</span>
+    <span>UV Index <strong>9 · Very High</strong></span>
+    <span class="sep">|</span>
+    <span>Lifeguards <strong>On Duty 9 – 5</strong></span>
+    <span class="sep">|</span>
+    <span>Trolley running · next at <strong>3:02 PM</strong></span>
+  </div>
+
+  <!-- ─── GRID ─────────────────────────────────────── -->
+  <main class="grid">
+
+    <!-- HERO WEATHER -->
+    <section class="card hero">
+      <span class="num">— Page i —</span>
+      <div class="k"><span>The Forecast Today</span><span>Delray Beach Pier</span></div>
+
+      <svg class="rays" viewBox="0 0 200 200" aria-hidden="true">
+        <g fill="none" stroke="#E5A52A" stroke-width="1.2" opacity=".55">
+          <circle cx="100" cy="100" r="42"/>
+          <circle cx="100" cy="100" r="62"/>
+          <g stroke-linecap="round">
+            <line x1="100" y1="12" x2="100" y2="32"/>
+            <line x1="100" y1="168" x2="100" y2="188"/>
+            <line x1="12" y1="100" x2="32" y2="100"/>
+            <line x1="168" y1="100" x2="188" y2="100"/>
+            <line x1="38" y1="38" x2="52" y2="52"/>
+            <line x1="148" y1="148" x2="162" y2="162"/>
+            <line x1="38" y1="162" x2="52" y2="148"/>
+            <line x1="148" y1="52" x2="162" y2="38"/>
+            <line x1="68" y1="20" x2="74" y2="36"/>
+            <line x1="126" y1="20" x2="132" y2="36"/>
+            <line x1="180" y1="68" x2="164" y2="74"/>
+            <line x1="180" y1="132" x2="164" y2="126"/>
+          </g>
+        </g>
+        <circle cx="100" cy="100" r="28" fill="#E5A52A" opacity=".95"/>
+      </svg>
+
+      <div class="hero-body">
+        <div>
+          <div class="temp">84<sup>°F</sup></div>
+          <p class="cond">Mostly sunny, with a passing afternoon cell drifting in off the Gulf Stream.
+            <small>Feels like 91° · Humidity 71% · Dew point 74°</small>
+          </p>
+        </div>
+        <div class="hero-meta">
+          <div>Wind<b>ENE 11 mph</b></div>
+          <div>Visibility<b>10 mi</b></div>
+          <div>Pressure<b>30.04 in</b></div>
+          <div>Rain chance<b>30% · 4 PM</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BEACH CARD -->
+    <section class="card dark beach">
+      <div class="k"><span>The Sea Today</span><span>Buoy 41114</span></div>
+      <h3 style="font-family:Fraunces; font-variation-settings:'opsz' 144,'SOFT' 80,'WONK' 1,'wght' 480; font-size:46px; margin:0 0 4px; line-height:.92; letter-spacing:-.02em">
+        Glassy. <em style="font-style:italic; color:var(--sun); font-variation-settings:'opsz' 144,'SOFT' 100,'WONK' 1,'wght' 360">Warm.</em><br>
+        Forgiving.
+      </h3>
+      <p style="font-family:Fraunces; font-style:italic; color:var(--blush); margin:4px 0 14px; font-size:15px; line-height:1.4">
+        A gentle east swell off Boynton Inlet. Good morning for a longboard; better still for a float.
+      </p>
+
+      <div class="beach-grid">
+        <div class="bx">
+          <div class="lbl">Water</div>
+          <div class="val">79<sup>°F</sup></div>
+          <div class="note">Bath-warm. No wetsuit required.</div>
+        </div>
+        <div class="bx">
+          <div class="lbl">Surf</div>
+          <div class="val">1–2<sup>ft</sup></div>
+          <div class="note">Period 8 s · clean lines</div>
+        </div>
+        <div class="bx">
+          <div class="lbl">UV Index</div>
+          <div class="val">9</div>
+          <div class="bar"><i style="width:90%"></i></div>
+          <div class="note">Very high — reapply at 11 &amp; 2.</div>
+        </div>
+        <div class="bx">
+          <div class="lbl">Wind onshore</div>
+          <div class="val">11<sup>mph</sup></div>
+          <div class="note">Light chop past the second sandbar.</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <span class="flag green">Green Flag · Calm</span>
+        <span class="flag">Purple · Jellies sighted N of pier</span>
+      </div>
+    </section>
+
+    <!-- TIDE STRIP -->
+    <section class="tide">
+      <div class="tide-head">
+        <div>
+          <div class="k" style="border:none; padding:0; margin-bottom:4px"><span>Astronomical Tides · Delray Beach</span></div>
+          <h3>The tide turns at <em>half past four</em>.</h3>
+        </div>
+        <div class="events">
+          <div>High Tide<b>10:42 AM · 2.8 ft</b></div>
+          <div>Low Tide<b>4:31 PM · 0.4 ft</b></div>
+          <div>High Tide<b>10:58 PM · 3.1 ft</b></div>
+          <div>Moon<b>🌒 Waxing · 23%</b></div>
+        </div>
+      </div>
+
+      <svg class="tide-svg" viewBox="0 0 1200 140" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="tg" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#0E4754" stop-opacity=".25"/>
+            <stop offset="1" stop-color="#0E4754" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- baseline grid -->
+        <g stroke="#2B1F15" stroke-opacity=".18" stroke-dasharray="2 4">
+          <line x1="0" y1="40" x2="1200" y2="40"/>
+          <line x1="0" y1="80" x2="1200" y2="80"/>
+          <line x1="0" y1="120" x2="1200" y2="120"/>
+        </g>
+        <!-- the curve -->
+        <path class="fill" d="M0,80 C 50,55 100,30 150,30 C 200,30 230,40 280,80 C 330,118 380,128 430,120 C 480,112 510,90 560,55 C 610,28 660,22 710,28 C 760,34 810,52 860,82 C 910,112 960,128 1010,120 C 1060,112 1100,82 1150,55 C 1175,42 1200,32 1200,32 L 1200,140 L 0,140 Z" />
+        <path class="curve" d="M0,80 C 50,55 100,30 150,30 C 200,30 230,40 280,80 C 330,118 380,128 430,120 C 480,112 510,90 560,55 C 610,28 660,22 710,28 C 760,34 810,52 860,82 C 910,112 960,128 1010,120 C 1060,112 1100,82 1150,55 C 1175,42 1200,32 1200,32"/>
+        <!-- hours -->
+        <g>
+          <text x="6" y="135">6 AM</text>
+          <text x="206" y="135">9 AM</text>
+          <text x="406" y="135">12 PM</text>
+          <text x="606" y="135">3 PM</text>
+          <text x="806" y="135">6 PM</text>
+          <text x="1006" y="135">9 PM</text>
+          <text x="1150" y="135">12 AM</text>
+        </g>
+        <!-- now indicator at 2:47pm ≈ x = 566 -->
+        <line class="now-line" x1="566" y1="0" x2="566" y2="120"/>
+        <circle class="now-dot" cx="566" cy="60" r="5"/>
+        <text x="572" y="14" fill="#D85230" style="letter-spacing:.14em">NOW · 2:47 PM</text>
+      </svg>
+    </section>
+
+    <!-- SECTION HEAD: AVENUE -->
+    <div class="section-head">
+      <h2>On the <em>Avenue</em>.</h2>
+      <div class="meta">A field guide to dining,<br>drinking &amp; lingering · pp. 02–03</div>
+    </div>
+
+    <!-- LISTINGS -->
+    <article class="listing">
+      <div class="cat"><span>Italian · Sidewalk</span><span class="price">$$</span></div>
+      <h4>Caffè Luna Rosa</h4>
+      <p class="blurb">Across the dunes from the lifeguard tower. Espresso, panini, and a sea-grape patio that catches the morning trade wind.</p>
+      <div class="meta-row">
+        <span>34 S Ocean Blvd</span>
+        <span class="wait">15 min wait</span>
+        <span class="stars">★★★★½</span>
+      </div>
+    </article>
+
+    <article class="listing">
+      <div class="cat"><span>Seafood · Raw Bar</span><span class="price">$$$</span></div>
+      <h4>City Oyster &amp; Sushi</h4>
+      <p class="blurb">Apalachicolas on the half-shell beside Hokkaido scallops. Local hands have lifted glasses here since the Avenue still slept early.</p>
+      <div class="meta-row">
+        <span>213 E Atlantic Ave</span>
+        <span class="wait hot">45 min wait</span>
+        <span class="stars">★★★★½</span>
+      </div>
+    </article>
+
+    <article class="listing">
+      <div class="cat"><span>American · Beachfront</span><span class="price">$$</span></div>
+      <h4>Boston's on the Beach</h4>
+      <p class="blurb">Sand-floored porch, fried grouper, and a reggae band that has been on Tuesdays since the Carter administration.</p>
+      <div class="meta-row">
+        <span>40 S Ocean Blvd</span>
+        <span class="wait">No wait</span>
+        <span class="stars">★★★★</span>
+      </div>
+    </article>
+
+    <article class="listing">
+      <div class="cat"><span>Steakhouse · Cocktails</span><span class="price">$$$$</span></div>
+      <h4>Salt7</h4>
+      <p class="blurb">A long, candlelit cave of dry-aged ribeye and aged cognac. The crowd dresses for it; the music keeps going past the entree.</p>
+      <div class="meta-row">
+        <span>32 SE 2nd Ave</span>
+        <span class="wait hot">1 hr · book ahead</span>
+        <span class="stars">★★★★½</span>
+      </div>
+    </article>
+
+    <article class="listing">
+      <div class="cat"><span>Speakeasy · Vinyl</span><span class="price">$$</span></div>
+      <h4>Death or Glory</h4>
+      <p class="blurb">A bungalow off Swinton. Rum punches, sidewalk fire, a turntable in the corner — all the requirements of a good evening.</p>
+      <div class="meta-row">
+        <span>116 NE 6th Ave</span>
+        <span class="wait">Walk-in</span>
+        <span class="stars">★★★★★</span>
+      </div>
+    </article>
+
+    <article class="listing">
+      <div class="cat"><span>Asian Street · Hawker</span><span class="price">$$</span></div>
+      <h4>Hawkers</h4>
+      <p class="blurb">Small plates from the night markets of Penang, Bangkok and Saigon. Roti canai, papaya salad, and pork belly bao to share.</p>
+      <div class="meta-row">
+        <span>14 SE 4th Ave</span>
+        <span class="wait">25 min wait</span>
+        <span class="stars">★★★★</span>
+      </div>
+    </article>
+
+    <article class="listing">
+      <div class="cat"><span>Rooftop · Sunset</span><span class="price">$$$</span></div>
+      <h4>Buddha Sky Bar</h4>
+      <p class="blurb">Four floors above the Avenue, palm fronds and pad-thai sliders. Get there by 7:40 if you want the western banquette.</p>
+      <div class="meta-row">
+        <span>217 E Atlantic Ave</span>
+        <span class="wait hot">No reservations</span>
+        <span class="stars">★★★★</span>
+      </div>
+    </article>
+
+    <article class="listing">
+      <div class="cat"><span>Coffee · Pastries</span><span class="price">$</span></div>
+      <h4>Subculture Coffee</h4>
+      <p class="blurb">Concrete floor, kind baristas, single-origin Ethiopias by the pour. The cardamom bun goes fast — usually before 10.</p>
+      <div class="meta-row">
+        <span>123 NE 2nd Ave</span>
+        <span class="wait">No wait</span>
+        <span class="stars">★★★★½</span>
+      </div>
+    </article>
+
+    <article class="listing">
+      <div class="cat"><span>Patio · Live Music</span><span class="price">$$</span></div>
+      <h4>The Office</h4>
+      <p class="blurb">Bourbon burgers and a soundtrack of soul 45s. Sundays bring a brass band and a brunch that runs past three.</p>
+      <div class="meta-row">
+        <span>201 E Atlantic Ave</span>
+        <span class="wait">10 min wait</span>
+        <span class="stars">★★★★</span>
+      </div>
+    </article>
+
+    <!-- EVENTS MARQUEE -->
+    <div class="marquee-wrap">
+      <div class="marquee">
+        <span><b>TONIGHT</b>Free concert at Old School Square · The Resolvers play roots reggae · 7 PM</span>
+        <span><b>FRI</b>First Friday Art Walk · galleries open till 10 along Pineapple Grove</span>
+        <span><b>SAT</b>GreenMarket at Old School Square · 9 AM – 2 PM · honey, citrus, croissants</span>
+        <span><b>SAT</b>Sunset Yoga on the sand · 2 S Ocean Blvd · 7 PM · bring water &amp; a friend</span>
+        <span><b>SUN</b>Sundy House jazz brunch · 106 S Swinton · 11 AM, reservations</span>
+        <span><b>WED</b>Cinema Paradiso outdoor screening · "Local Hero" · 8:15 PM · free</span>
+        <span><b>NEXT WK</b>Delray Affair · the South's largest arts festival · three days, twelve blocks</span>
+        <span><b>TONIGHT</b>Free concert at Old School Square · The Resolvers play roots reggae · 7 PM</span>
+        <span><b>FRI</b>First Friday Art Walk · galleries open till 10 along Pineapple Grove</span>
+        <span><b>SAT</b>GreenMarket at Old School Square · 9 AM – 2 PM · honey, citrus, croissants</span>
+        <span><b>SAT</b>Sunset Yoga on the sand · 2 S Ocean Blvd · 7 PM · bring water &amp; a friend</span>
+        <span><b>SUN</b>Sundy House jazz brunch · 106 S Swinton · 11 AM, reservations</span>
+        <span><b>WED</b>Cinema Paradiso outdoor screening · "Local Hero" · 8:15 PM · free</span>
+        <span><b>NEXT WK</b>Delray Affair · the South's largest arts festival · three days, twelve blocks</span>
+      </div>
+    </div>
+
+    <!-- SECTION HEAD: GETTING ABOUT -->
+    <div class="section-head">
+      <h2>Getting <em>About</em>.</h2>
+      <div class="meta">Where to leave the car<br>&amp; how to leave it there · pp. 04</div>
+    </div>
+
+    <!-- PARKING -->
+    <section class="card parking">
+      <div class="k"><span>Public Garages &amp; Lots · Now</span><span>Updated 2:47 PM</span></div>
+
+      <div class="park-list">
+        <div class="park-row">
+          <div class="name">Federspiel Garage<small>SE 1st Ave · 4 floors</small></div>
+          <div class="bar"><i style="width:62%"></i></div>
+          <div class="count"><b>148</b>of 240 free</div>
+          <div class="rate"><b>$2</b>/hr · 4hr max</div>
+        </div>
+        <div class="park-row">
+          <div class="name">Old School Square Garage<small>NE 1st Ave · 5 floors</small></div>
+          <div class="bar"><i class="low" style="width:82%"></i></div>
+          <div class="count"><b>52</b>of 290 free</div>
+          <div class="rate"><b>$2</b>/hr · 12hr max</div>
+        </div>
+        <div class="park-row">
+          <div class="name">South County Courthouse<small>Atlantic &amp; Congress · weekends</small></div>
+          <div class="bar"><i style="width:38%"></i></div>
+          <div class="count"><b>312</b>of 500 free</div>
+          <div class="rate"><b>Free</b>after 5 &amp; weekends</div>
+        </div>
+        <div class="park-row">
+          <div class="name">Sandoway Beach Lot<small>S Ocean Blvd · oceanside</small></div>
+          <div class="bar"><i class="full" style="width:97%"></i></div>
+          <div class="count"><b>3</b>of 84 free</div>
+          <div class="rate"><b>$3</b>/hr · cash or app</div>
+        </div>
+        <div class="park-row">
+          <div class="name">Atlantic Ave Street Meters<small>1st – 7th Avenue, both sides</small></div>
+          <div class="bar"><i class="low" style="width:74%"></i></div>
+          <div class="count"><b>~30</b>spots open</div>
+          <div class="rate"><b>$2.50</b>/hr · ParkMobile</div>
+        </div>
+      </div>
+
+      <p style="font-family:Fraunces; font-style:italic; color:var(--ink-soft); font-size:13.5px; margin:14px 0 0; line-height:1.45">
+        Tip from the desk: park once at Old School Square, walk the Avenue west to east, then take the trolley back.
+        Saves you the second meter and the second argument.
+      </p>
+    </section>
+
+    <!-- TROLLEY -->
+    <section class="card dark trolley">
+      <div class="trolley-head">
+        <div class="k" style="color:var(--blush)"><span>The Downtown Roundabout</span><span>Thurs – Sun</span></div>
+        <h3>Catch the <em>free</em><br>trolley.</h3>
+        <span class="free">No fare · every ~15 min</span>
+      </div>
+
+      <div class="route">
+        <div class="route-line">
+          <div class="stop">A1A &amp; Atlantic <span class="eta">3:02 PM</span></div>
+          <div class="stop">Veterans Park <span class="eta">3:04 PM</span></div>
+          <div class="stop now">Old School Square <span class="eta">now boarding</span></div>
+          <div class="stop">Pineapple Grove <span class="eta">3:14 PM</span></div>
+          <div class="stop">Tri-Rail Station <span class="eta">3:22 PM</span></div>
+          <div class="stop">Federspiel Garage <span class="eta">3:30 PM</span></div>
+          <div class="stop">Return to Beach <span class="eta">3:42 PM</span></div>
+        </div>
+      </div>
+
+      <div class="trolley-foot">
+        <span>Thu–Sat · 10 AM – 12 AM</span>
+        <span>Sun · 10 AM – 8 PM</span>
+      </div>
+    </section>
+
+    <!-- PULL QUOTE -->
+    <div class="quote">
+      <blockquote>"The Avenue is, in essence, a <span>long, slow conversation</span> between the ocean and the railroad — and you are welcome to sit in."</blockquote>
+      <cite>— a regular, on a bar napkin, c. 2019</cite>
+    </div>
+
+    <!-- SECTION HEAD: DAY TRIPS -->
+    <div class="section-head">
+      <h2>Worth the <em>detour</em>.</h2>
+      <div class="meta">Highlights within a<br>twenty-minute drive · pp. 06</div>
+    </div>
+
+    <!-- DAY TRIPS -->
+    <article class="trip">
+      <span class="badge">Editor's Pick</span>
+      <h4>Morikami Gardens &amp; <em>Museum</em></h4>
+      <p>Six Japanese gardens in chronological sequence, tucked behind sugar cane fields. Bring patience; the koi will outlast you.</p>
+      <div class="facts">
+        <span>Open <b>10–5</b></span>
+        <span><b>16 min</b> west</span>
+        <span>$<b>16</b></span>
+      </div>
+    </article>
+
+    <article class="trip">
+      <h4>Wakodahatchee <em>Wetlands</em></h4>
+      <p>Three-quarters of a mile of boardwalk over restored marsh. Alligators by 8 AM, herons all day, anhingas drying their wings like sails.</p>
+      <div class="facts">
+        <span>Open <b>Sunrise–Sunset</b></span>
+        <span><b>9 min</b> west</span>
+        <span><b>Free</b></span>
+      </div>
+    </article>
+
+    <article class="trip">
+      <h4>Cornell Art <em>Museum</em></h4>
+      <p>Inside Old School Square's 1913 schoolhouse. Four floors of rotating contemporary art and a courtyard that smells of jasmine.</p>
+      <div class="facts">
+        <span>Open <b>11–4</b></span>
+        <span><b>On the Ave</b></span>
+        <span>$<b>10</b></span>
+      </div>
+    </article>
+
+    <article class="trip">
+      <h4>Sandoway <em>Discovery</em> Center</h4>
+      <p>A 1930s beach house become children's nature museum. The 3 PM shark feeding is small theatre with educational consequences.</p>
+      <div class="facts">
+        <span>Open <b>10–4 Tue–Sat</b></span>
+        <span><b>3 min</b> east</span>
+        <span>$<b>6</b></span>
+      </div>
+    </article>
+
+    <article class="trip">
+      <h4>The Pineapple Grove <em>Murals</em></h4>
+      <p>A self-guided mile of large-scale wall art, NE 2nd Avenue. Best in late afternoon, when the sun rakes across the brick.</p>
+      <div class="facts">
+        <span>Open <b>Always</b></span>
+        <span><b>Walking</b></span>
+        <span><b>Free</b></span>
+      </div>
+    </article>
+
+    <article class="trip">
+      <h4>The <em>Pier</em> at Anchor Park</h4>
+      <p>Two blocks of paved promenade, one historic boathouse, the Atlantic on three sides. Lock the bike to the south rail and go barefoot.</p>
+      <div class="facts">
+        <span>Open <b>5 AM–10 PM</b></span>
+        <span><b>4 min</b> east</span>
+        <span><b>Free</b></span>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- ─── COLOPHON ───────────────────────────────── -->
+  <footer class="colophon">
+    <div>
+      <b>Visitor Center</b>
+      140 NE 1st St<br>
+      Open 9 – 5 daily<br>
+      (561) 278-0424
+    </div>
+    <div>
+      <b>If you need a doctor</b>
+      Delray Medical Ctr<br>
+      24-hr emergency<br>
+      5352 Linton Blvd
+    </div>
+    <div>
+      <b>If you forget a swimsuit</b>
+      Atlantic Avenue Surf<br>
+      &amp; the Sandcastle<br>
+      both at Ocean &amp; Atlantic
+    </div>
+    <div>
+      <b>If you want to stay longer</b>
+      The Colony Hotel since 1926<br>
+      The Seagate · oceanfront<br>
+      The Ray · rooftop bar
+    </div>
+    <div class="signoff">Wishing you a <span>long, lazy</span> afternoon.</div>
+  </footer>
+
+</div>
+
+<script>
+  // live clock + tide marker
+  const updatedAt = document.getElementById('updatedAt');
+  const dateEl = document.getElementById('todayDate');
+
+  function fmtTime(d){
+    let h = d.getHours(), m = d.getMinutes().toString().padStart(2,'0');
+    const ampm = h>=12 ? 'PM' : 'AM';
+    h = h%12 || 12;
+    return h + ':' + m + ' ' + ampm + ' EST';
+  }
+  function fmtDate(d){
+    const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const mons=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return days[d.getDay()] + ' · ' + d.getDate() + ' ' + mons[d.getMonth()] + ' ' + d.getFullYear();
+  }
+  function tick(){
+    const d = new Date();
+    if(updatedAt) updatedAt.textContent = fmtTime(d);
+    if(dateEl) dateEl.textContent = fmtDate(d);
+  }
+  tick();
+  setInterval(tick, 30000);
+</script>
+
+</body>
+</html>
